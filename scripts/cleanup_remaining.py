@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 from pathlib import Path
 
 path = Path("sshmodel.ipynb")
@@ -156,14 +155,13 @@ for cell in notebook.get("cells", []):
             "うろ覚えでかなりいい加減なことを書いているので、詳しくはその手のちゃんとしたテキストを参照すること。",
             "以下では、標準的な単位胞と実数結合 $v,w>0$ を基準に、対称性とトポロジカル不変量を整理する。",
         )
-        text = re.sub(
-            r"上の実装では、追加でChiral対称性を壊す項.*?後ほど確認する。",
+        text = text.replace(
+            "上の実装では、追加でChiral対称性を壊す項 $m$ を加えている。$m\\neq 0$ のときにトポロジカル性が失われることを後ほど確認する。",
             "上の実装では、カイラル対称性を破る staggered onsite term $m\\sigma_z$ も扱える。$m\\neq0$ では Zak phase は一般に $0$ または $\\pi$ に量子化されず、零エネルギー端状態もカイラル対称性によって保護されなくなる。",
-            text,
         )
         text = text.replace(
-            "一般の符号を許す場合は $\\lvert w\\rvert$ と $\\lvert v\\rvert$ の大小に加えて、曲線の向きによって $\\nu$ の符号も変わり得る。",
-            "この Fourier 規約では、実数結合について $|w|>|v|$ なら $\\nu=1$、$|w|<|v|$ なら $\\nu=0$ である。逆向きの Fourier 規約を採用すると winding number の符号は反転するが、相の分類は変わらない。",
+            "一般の符号を許す場合は \\(\\lvert w\\rvert\\) と \\(\\lvert v\\rvert\\) の大小に加えて、曲線の向きによって \\(\\nu\\) の符号も変わり得る。",
+            "この Fourier 規約では、実数結合について \\(|w|>|v|\\) なら \\(\\nu=1\\)、\\(|w|<|v|\\) なら \\(\\nu=0\\) である。逆向きの Fourier 規約を採用すると winding number の符号は反転するが、相の分類は変わらない。",
         )
         text = text.replace(
             "上のコードを適当に弄ると、非エルミートな場合の計算も可能。各自試してみてください。",

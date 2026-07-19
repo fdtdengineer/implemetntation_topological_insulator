@@ -76,6 +76,8 @@ jobs:
               r"\end{cases}",
               r"\(",
               r"\)",
+              r"\!",
+              r"\nu&=0",
               "Willson loop",
               "phase_pi = np.angle(phase)",
               "npr_psiL[:,:,0]",

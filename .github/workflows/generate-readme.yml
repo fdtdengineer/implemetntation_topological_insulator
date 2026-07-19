@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "sshmodel.ipynb"
+      - "scripts/normalize_notebook.py"
       - ".github/workflows/generate-readme.yml"
   workflow_dispatch:
 
@@ -28,99 +29,8 @@ jobs:
       - name: Install nbconvert
         run: python -m pip install --upgrade nbconvert
 
-      - name: Normalize notebook for GitHub rendering
-        run: |
-          python - <<'PY'
-          import json
-          import re
-          from pathlib import Path
-
-          notebook_path = Path("sshmodel.ipynb")
-          if not notebook_path.exists():
-              raise FileNotFoundError("sshmodel.ipynb was not found.")
-
-          with notebook_path.open("r", encoding="utf-8") as f:
-              notebook = json.load(f)
-
-          title = "# 1次元トポロジカル絶縁体：SSH模型の実装"
-          citation = (
-              "## Reference\n\n"
-              "J. K. Asbóth, L. Oroszlány, and A. Pályi, "
-              "*A Short Course on Topological Insulators: Band-Structure Topology and Edge States in One and Two Dimensions*, "
-              "Lecture Notes in Physics **919** (Springer, 2016). "
-              "[doi:10.1007/978-3-319-25607-8](https://doi.org/10.1007/978-3-319-25607-8); "
-              "[arXiv:1509.02295](https://arxiv.org/abs/1509.02295).\n\n"
-          )
-
-          markdown_cells = [
-              cell for cell in notebook.get("cells", [])
-              if cell.get("cell_type") == "markdown"
-          ]
-          if not markdown_cells:
-              raise ValueError("The notebook contains no Markdown cells.")
-
-          for cell in markdown_cells:
-              source = cell.get("source", [])
-              text = "".join(source) if isinstance(source, list) else source
-
-              # Optional-package commands such as \bm, \ket and \bra are not
-              # available in GitHub's math renderer. Replace them with standard
-              # LaTeX and terminate closing control words explicitly with {}.
-              text = text.replace("\\bm", "\\boldsymbol")
-              text = re.sub(r"\\ket\{([^{}]+)\}", r"\\lvert \1 \\rangle{}", text)
-              text = re.sub(r"\\bra\{([^{}]+)\}", r"\\langle \1 \\rvert{}", text)
-
-              # Repair notation converted by earlier workflow versions, where
-              # expressions such as \bra{k}H became the invalid command \rvertH.
-              text = re.sub(r"\\rangle(?!\{\})", r"\\rangle{}", text)
-              text = re.sub(r"\\rvert(?!\{\})", r"\\rvert{}", text)
-
-              cell["source"] = text.splitlines(keepends=True)
-
-          first_cell = markdown_cells[0]
-          first_text = "".join(first_cell.get("source", []))
-
-          # Remove the existing title and generated reference block so that this
-          # normalization remains idempotent.
-          lines = first_text.splitlines()
-          body_lines = []
-          skip_reference_block = False
-          for index, line in enumerate(lines):
-              if index == 0 and line.startswith("# "):
-                  continue
-              if line.strip() == "## Reference":
-                  skip_reference_block = True
-                  continue
-              if skip_reference_block:
-                  if line.startswith("## ") and line.strip() != "## Reference":
-                      skip_reference_block = False
-                  else:
-                      continue
-              if "arxiv.org/abs/1509.02295" in line:
-                  continue
-              body_lines.append(line)
-
-          body = "\n".join(body_lines).strip()
-          first_text = title + "\n\n" + citation + body + "\n"
-          first_cell["source"] = first_text.splitlines(keepends=True)
-
-          # Static checks for the unsupported or accidentally joined commands
-          # that previously caused GitHub's math compilation to fail.
-          all_markdown = "\n".join(
-              "".join(cell.get("source", []))
-              for cell in markdown_cells
-          )
-          forbidden = [r"\\bm", r"\\ket", r"\\bra"]
-          for command in forbidden:
-              if re.search(command, all_markdown):
-                  raise ValueError(f"Unsupported LaTeX command remains: {command}")
-          if re.search(r"\\r(?:angle|vert)[A-Za-z]", all_markdown):
-              raise ValueError("A closing Dirac-notation command is joined to following text.")
-
-          with notebook_path.open("w", encoding="utf-8") as f:
-              json.dump(notebook, f, ensure_ascii=False, indent=1)
-              f.write("\n")
-          PY
+      - name: Normalize and validate notebook
+        run: python scripts/normalize_notebook.py
 
       - name: Convert notebook to README
         run: |
@@ -131,6 +41,35 @@ jobs:
             --output-dir . \
             sshmodel.ipynb
 
+      - name: Validate generated README
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          text = Path("README.md").read_text(encoding="utf-8")
+          required = [
+              r"\{\sigma_z,H(k)\}=0",
+              r"\frac{1}{2}\int_{-\pi}^{\pi}",
+              r"\gamma_\pm=\operatorname{Arg}W_\pm",
+              r"H_{1,2N}=H_{2N,1}=w",
+          ]
+          forbidden = [
+              r"[\sigma_z, H(k)] = 0",
+              r"H_{1,2N}=H_{2N,1}=v",
+              r"\begin{equation}",
+              "Willson loop",
+          ]
+
+          for expression in required:
+              if expression not in text:
+                  raise SystemExit(f"Required corrected expression is missing: {expression}")
+          for expression in forbidden:
+              if expression in text:
+                  raise SystemExit(f"Known incorrect expression remains: {expression}")
+          if text.count("$$") % 2:
+              raise SystemExit("Unbalanced display-math delimiters ($$).")
+          PY
+
       - name: Commit notebook and generated README
         run: |
           git config user.name "github-actions[bot]"
@@ -139,6 +78,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Notebook and README are already up to date."
           else
-            git commit -m "Fix Dirac notation rendering in README"
+            git commit -m "Fix SSH derivations and README math"
             git push
           fi

@@ -1,6 +1,8 @@
 # SSH模型
 
-[こちらのテキスト](https://arxiv.org/abs/1509.02295)に必要なことはおおよそ書かれているので、適宜参照。
+## Reference
+
+J. K. Asbóth, L. Oroszlány, and A. Pályi, *A Short Course on Topological Insulators: Band-Structure Topology and Edge States in One and Two Dimensions*, Lecture Notes in Physics **919** (Springer, 2016). [doi:10.1007/978-3-319-25607-8](https://doi.org/10.1007/978-3-319-25607-8); [arXiv:1509.02295](https://arxiv.org/abs/1509.02295).
 
 ## 概要
 
@@ -53,8 +55,6 @@ $$
 周期境界条件 $\ket{N+1, A} = \ket{1, A}$ が課されている場合、$H_{1,2N}=H_{2N,1}=v$ となる。
 
 固有値問題 $H \ket{\Psi_n} = E_n \ket{\Psi_n}$ を解くことで、エネルギースペクトルを求めることができる。
-
-
 
 ### 平面波基底による表現
 
@@ -173,7 +173,7 @@ $$
 
 $$
 \begin{aligned}
-  H(k) &= d_0(k) \hat{\sigma}_0 + \bm{d}(k) \cdot \bm{\sigma}\\
+  H(k) &= d_0(k) \hat{\sigma}_0 + \boldsymbol{d}(k) \cdot \boldsymbol{\sigma}\\
   d_x(k) &= v + w \cos k, \quad d_y(k) = w \sin k, \quad d_z(k) = 0
 \end{aligned}
 $$
@@ -192,7 +192,7 @@ $$
 
 ### Winding number
 
-続いて、波数が Brillouin zone 全体を動く $(k = 0 \to 2\pi)$ときに、ベクトル $\bm{d}(k)$ の終点がなぞる軌跡を考える。
+続いて、波数が Brillouin zone 全体を動く $(k = 0 \to 2\pi)$ときに、ベクトル $\boldsymbol{d}(k)$ の終点がなぞる軌跡を考える。
 一般的な系において閉経路は円にならないが、ハミルトニアンの周期性 $H(k+2\pi) = H(k)$ より閉ループである必要がある。
 このループのトポロジーは、閉経路が原点を何周回るかを表す Winding number $\nu$ で特徴付けられる。
 
@@ -218,7 +218,7 @@ $\nu$ の値は複素平面上で $h(k)$ の経路が原点を囲んでいれば
 ![image-3.png](README_files/image-3.png)
 
 
-カイラル対称性があることから、ベクトル$\bm{d}(k)$ の軌跡は $d_x, d_y$平面上にあることが制限される。（このことが$\nu$が整数値をとる所以である）<br>
+カイラル対称性があることから、ベクトル$\boldsymbol{d}(k)$ の軌跡は $d_x, d_y$平面上にあることが制限される。（このことが$\nu$が整数値をとる所以である）<br>
 下図に示す通り、$v<w$ なら $\nu=0$ (Trivial phase), $v<w$ なら $\nu=1$ (Non-trivial phase) である。
 
 ![image-2.png](README_files/image-2.png)

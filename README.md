@@ -52,117 +52,65 @@ v & 0 & w & 0 & 0 & 0 & 0 & 0 \\
 $$
 
 上記はOpen boundary condition $\lvert N+1, A \rangle{} = 0$ を課した場合。
-周期境界条件 $\lvert N+1, A \rangle{} = \lvert 1, A \rangle{}$ が課されている場合、$H_{1,2N}=H_{2N,1}=v$ となる。
+周期境界条件 $\lvert N+1, A \rangle{} = \lvert 1, A \rangle{}$ が課されている場合、$H_{1,2N}=H_{2N,1}=w$ となる。
 
 固有値問題 $H \lvert \Psi_n \rangle{} = E_n \lvert \Psi_n \rangle{}$ を解くことで、エネルギースペクトルを求めることができる。
 
 
 ### 平面波基底による表現
 
-周期境界条件が課されている場合、Fourier変換を用いて2x2の固有値問題へ帰着させることができる。<br>
-平面波基底 $\lvert k \rangle{}$ を
+周期境界条件の下では、各サブ格子 \(\alpha\in\{A,B\}\) に対して
 
 $$
-\begin{aligned}
-\lvert k \rangle{} = \frac{1}{\sqrt{N}} \sum_{m=1}^N e^{imk} \lvert m \rangle{}, \quad \text{for} \quad k \in \{\delta_k, 2\delta_k, \ldots, N\delta_k\} \quad \text{with} \quad \delta_k = \frac{2\pi}{N}
-\end{aligned}
+\lvert k,\alpha\rangle
+=\frac{1}{\sqrt{N}}\sum_{l=1}^{N}e^{ikl}\lvert l,\alpha\rangle,
+\qquad
+k=\frac{2\pi n}{N},\quad n=0,1,\ldots,N-1
 $$
 
-で定義すると
+と定義する。基底を \((\lvert k,A\rangle,\lvert k,B\rangle)\) の順に取ると、Bloch Hamiltonian は
 
 $$
-\begin{aligned}
-\langle k \rvert{}H_\mathrm{intra} \lvert k \rangle{} 
-&= \frac{v}{N} \sum_{l=1}^{N}\sum_{m=1}^{N}\sum_{m=1}^{N}
-e^{-i(m-n)k} \langle m \rvert{}
-\left(
-    \lvert l, B \rangle{} \langle l, A \rvert{} + \lvert l, A \rangle{} \langle l, B \rvert{} 
-\right)\lvert n \rangle{} \\
-&= \frac{v}{N} \sum_{l=1}^{N}\sum_{m=1}^{N}\sum_{m=1}^{N}
-e^{-i(m-n)k} \delta_{m,l}\delta_{l,n}
-\left(
-    \lvert B \rangle{} \langle A \rvert{} + \lvert A \rangle{} \langle B \rvert{} 
-\right) \\
-&= \frac{v}{N} \sum_{l=1}^{N}
-\left(
-    \lvert B \rangle{} \langle A \rvert{} + \lvert A \rangle{} \langle B \rvert{} 
-\right) \\
-&= v\lvert B \rangle{} \langle A \rvert{} + v\lvert A \rangle{} \langle B \rvert{} 
-\end{aligned}
+H(k)=
+\begin{bmatrix}
+0 & v+w e^{-ik}\\
+v+w e^{ik} & 0
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 & h(k)^*\\
+h(k) & 0
+\end{bmatrix},
+\qquad
+h(k)=v+w e^{ik}
 $$
 
-
-$$
-\begin{aligned}
-\langle k \rvert{}H_\mathrm{inter} \lvert k \rangle{} 
-&= \frac{w}{N} \sum_{l=1}^{N} \sum_{m=1}^{N}\sum_{m=1}^{N}
-e^{-i(m-n)k} \langle m \rvert{}
-\left(
-    \lvert l+1, A \rangle{} \langle l, B \rvert{} + \lvert l, B \rangle{} \langle l+1, A \rvert{}
-\right)\lvert n \rangle{} \\
-&= \frac{w}{N} \sum_{l=1}^{N} \sum_{m=1}^{N}\sum_{m=1}^{N}
-\left(
-    e^{-i(m-n)k} \delta_{m,l+1} \delta_{l,n} \lvert B \rangle{} \langle A \rvert{} +
-    e^{-i(m-n)k} \delta_{m,l} \delta_{l+1,n} \lvert A \rangle{} \langle B \rvert{}
-\right) \\
-&= \frac{w}{N} \sum_{l=1}^{N}
-\left(
-    e^{-ik} \lvert B \rangle{} \langle A \rvert{} + e^{ ik} \lvert A \rangle{} \langle B \rvert{} 
-\right) \\
-&= w e^{-ik} \lvert B \rangle{} \langle A \rvert{} + w e^{ ik} \lvert A \rangle{} \langle B \rvert{}
-\end{aligned}
-$$
-
-である。途中の式変形で周期境界条件 $\lvert m+1 \rangle{}=\lvert 1 \rangle{}$ を課していることに注意。
-以上より、Bloch Hamiltonian $H(k)$ は
-
-$$
-\begin{aligned}
-  H(k) 
-  &:= \langle k \rvert{}H \lvert k \rangle{} \\
-  &= \langle k \rvert{}H_\mathrm{intra} + H_\mathrm{inter} \lvert k \rangle{} \\
-  &= \left(v + w e^{-ik} \right) \lvert B \rangle{} \langle A \rvert{} + \left(v + w e^{ ik} \right) \lvert A \rangle{} \langle B \rvert{}
-\end{aligned}
-$$
-
-すなわち、以下の行列形式で与えられる。
-
-$$
-\begin{aligned}
-H(k) \lvert u(k) \rangle{} = E_n(k) \lvert u(k) \rangle{}
-, \quad
-H(k) = 
-\begin{bmatrix} 
-    0 & v + w e^{-ik} \\
-    v + w e^{ik} & 0
-\end{bmatrix} 
-\end{aligned}
-$$
-
-Winding numberを用いてトポロジカル不変量を定義し、その値が1の場合にトポロジカル絶縁体となる。
+となる。したがって、バンドギャップは \(h(k)=0\) のときに閉じる。標準的な \(v,w>0\) の場合、転移点は \(v=w\)、波数は \(k=\pi\) である。
 
 
 ### 固有値と固有ベクトル
 
-Hamiltonian $H(k)$ の固有値と固有ベクトルは以下のように求められる。
+\(h(k)=\lvert h(k)\rvert e^{i\phi(k)}\) と書くと、固有値と規格化固有ベクトルは
 
 $$
-\begin{aligned}
-  E_\pm(k) = \pm \sqrt{v^2 + w^2 + 2vw \cos k}
-\end{aligned}
+E_\pm(k)=\pm\lvert h(k)\rvert
+=\pm\sqrt{v^2+w^2+2vw\cos k},
 $$
 
 $$
-\begin{aligned}
-  \lvert u_\pm(k) \rangle{} = \frac{1}{\sqrt{2}}
-  \begin{bmatrix}
-    e^{i\phi(k)} \\
-    1
-  \end{bmatrix}
-  , \quad
-  \phi(k) = \arctan \left( \frac{w \sin k}{v + w \cos k} \right)
-\end{aligned}
+\lvert u_\pm(k)\rangle
+=\frac{1}{\sqrt{2}}
+\begin{bmatrix}
+1\\
+\pm e^{i\phi(k)}
+\end{bmatrix},
+\qquad
+\phi(k)=\operatorname{Arg}\!\left(v+w e^{ik}\right)
+=\operatorname{atan2}\!\left(w\sin k,\,v+w\cos k\right).
 $$
+
+単純な \(\arctan(y/x)\) では象限と分岐を正しく追えないため、数値計算では \(\operatorname{atan2}\) または複素偏角を用いる。ギャップ閉鎖点では \(h(k)=0\) となり、\(\phi(k)\) と上の固有ベクトル表示は定義できない。
+
 
 ## 対称性とトポロジカル不変量
 
@@ -170,86 +118,97 @@ $$
 
 ### Chiral symmetry
 
-ハミルトニアン $H$ をパウリ行列で展開する。
+Bloch Hamiltonian は
 
 $$
-\begin{aligned}
-  H(k) &= d_0(k) \hat{\sigma}_0 + \boldsymbol{d}(k) \cdot \boldsymbol{\sigma}\\
-  d_x(k) &= v + w \cos k, \quad d_y(k) = w \sin k, \quad d_z(k) = 0
-\end{aligned}
+H(k)=d_x(k)\sigma_x+d_y(k)\sigma_y,
+\qquad
+d_x(k)=v+w\cos k,\quad d_y(k)=w\sin k,
 $$
 
-ここで重要なのは、$d_z(k)=0$, すなわち
+と書け、\(\sigma_z\) 成分を持たない。このため
 
 $$
-\begin{aligned}
-  [\sigma_z, H(k)] = 0 \Longleftrightarrow \sigma_z H(k) \sigma_z^{-1} = -H(k)
-\end{aligned}
+\{\sigma_z,H(k)\}=0
+\qquad\Longleftrightarrow\qquad
+\sigma_zH(k)\sigma_z^{-1}=-H(k)
 $$
 
-が成立することである。この関係式はカイラル対称性と呼ばれ、トポロジカルな性質を特徴付ける。
-- 物理的には、$\sigma_z H(k) \sigma_z^{-1}$ はAサイトとBサイトの交換操作を表す。この対称性は、AサイトとBサイトの入れ替えに対してハミルトニアンが符号の変化を除き不変であることを意味する。
-- グラフェンのハミルトニアンも同様のカイラル対称性を持ち、[Topologically protected な Dirac分散が出現する](http://cms.phys.s.u-tokyo.ac.jp/pdf/HatsugaiAoki.pdf)（グラフェンの場合はSSHでいうところの $v=w$ の状況）
-
+が成り立つ。これがカイラル対称性である。\(\sigma_z=\operatorname{diag}(1,-1)\) は A/B サブ格子を交換する操作ではなく、両サブ格子に相対的な符号を与える操作である。A/B の交換は \(\sigma_x\) に対応する。
 ### Winding number
 
-続いて、波数が Brillouin zone 全体を動く $(k = 0 \to 2\pi)$ときに、ベクトル $\boldsymbol{d}(k)$ の終点がなぞる軌跡を考える。
-一般的な系において閉経路は円にならないが、ハミルトニアンの周期性 $H(k+2\pi) = H(k)$ より閉ループである必要がある。
-このループのトポロジーは、閉経路が原点を何周回るかを表す Winding number $\nu$ で特徴付けられる。
-
+ギャップが開いている \(h(k)\neq0\) の場合、\(k\) が Brillouin zone を一周するときの複素数 \(h(k)=\lvert h(k)\rvert e^{i\phi(k)}\) の巻き付き数を
 
 $$
-\begin{aligned}
-  \nu 
-  &= \frac{1}{2\pi i} \int_{-\pi}^{\pi} \frac{\mathrm{d}}{\mathrm{d}k} \log (h(k)) \, \mathrm{d}k \\
-  &= \frac{1}{2\pi i} \int_{-\pi}^{\pi} \mathrm{d} \left( \log (|h(k)|) \right) + \frac{1}{2\pi} \int_{-\pi}^{\pi} \mathrm{d} \left( \arg (h(k)) \right)
-\end{aligned}
+\nu
+=\frac{1}{2\pi i}\int_{-\pi}^{\pi}
+\frac{\mathrm{d}}{\mathrm{d}k}\log h(k)\,\mathrm{d}k
+=\frac{1}{2\pi}\int_{-\pi}^{\pi}
+\frac{\partial\phi(k)}{\partial k}\,\mathrm{d}k
 $$
 
-ただし、$h(k) = d_x(k) + id_y(k)$ である。最右辺第一項は $h(k)$ の周期性から0であるから、偏角の成分のみが積分の値に寄与する。<br>
-$\nu$ の値は複素平面上で $h(k)$ の経路が原点を囲んでいれば$1$, そうでなければ$0$になる。<br>
-[参考](https://jhwilson.com/blog/2022/SSH-model/)
+で定義する。\(\nu\) は、\(h(k)\) の閉曲線が複素平面の原点を向き付きで何周するかを表す整数である。
 
+標準的な実数結合 \(v,w>0\) では
+
+$$
+\nu=
+\begin{cases}
+0, & v>w \quad\text{(trivial)},\\
+1, & v<w \quad\text{(topological)},
+\end{cases}
+$$
+
+であり、\(v=w\) ではギャップが閉じるため winding number は定義できない。一般の符号を許す場合は \(\lvert w\rvert\) と \(\lvert v\rvert\) の大小に加えて、曲線の向きによって \(\nu\) の符号も変わり得る。
 
 ![image-4.png](README_files/image-4.png)
 
-
-具体的な計算結果を下の図に示す。
-
 ![image-3.png](README_files/image-3.png)
 
-
-カイラル対称性があることから、ベクトル$\boldsymbol{d}(k)$ の軌跡は $d_x, d_y$平面上にあることが制限される。（このことが$\nu$が整数値をとる所以である）<br>
-下図に示す通り、$v<w$ なら $\nu=0$ (Trivial phase), $v<w$ なら $\nu=1$ (Non-trivial phase) である。
-
 ![image-2.png](README_files/image-2.png)
-
-Trivialユニットセル内の2サイトの結合が強い状態、Non-trivialはその逆である。
 
 ![image.png](README_files/image.png)
 
 
 ### Zak phase
 
-1次元周期系に対して定義されるトポロジカル不変量（の$\pi$倍）として[Zak phase](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.62.2747)（もしくは単にBerry phase）が知られている。これは、Brillouin zone 全体に対するBerry connectionの積分で定義される。
+ここでは Berry connection を
+
+$$
+A_\pm(k)
+=-i\left\langle u_\pm(k)\middle|\frac{\partial}{\partial k}\middle|u_\pm(k)\right\rangle
+$$
+
+と定義し、Zak phase を
+
+$$
+\gamma_\pm=\int_{-\pi}^{\pi}A_\pm(k)\,\mathrm{d}k
+\qquad (\mathrm{mod}\ 2\pi)
+$$
+
+とする。上の固有ベクトルでは
+
+$$
+\left\langle u_\pm(k)\middle|\frac{\partial}{\partial\phi}\middle|u_\pm(k)\right\rangle
+=\frac{i}{2}
+$$
+
+なので、
 
 $$
 \begin{aligned}
-   \gamma_\pm &= \int_{-\pi}^{\pi} A_\pm(k) \mathrm{d}k \\
-   &= - i\int_{-\pi}^{\pi} \left\langle u_\pm(k) \middle| \frac{\partial}{\partial k} \middle| u_\pm(k) \right\rangle{} \mathrm{d}k
+\gamma_\pm
+&=-i\int_{-\pi}^{\pi}
+\frac{\partial\phi}{\partial k}
+\left\langle u_\pm(k)\middle|\frac{\partial}{\partial\phi}\middle|u_\pm(k)\right\rangle
+\,\mathrm{d}k\\
+&=\frac{1}{2}\int_{-\pi}^{\pi}
+\frac{\partial\phi}{\partial k}\,\mathrm{d}k\\
+&=\pi\nu\qquad (\mathrm{mod}\ 2\pi).
 \end{aligned}
 $$
 
-SSH 模型の場合は $\lvert u_\pm(k) \rangle{} = 1/ \sqrt{2} \ [\pm e^{i\phi(k)}, 1]^\top, \quad \phi(k) = \arctan \left( \frac{w \sin k}{v + w \cos k} \right)$ なので、
-
-$$
-\begin{aligned}
-   \gamma_\pm 
-   &= - i\int_{-\pi}^{\pi} \frac{\partial \phi}{\partial k} \left\langle u_\pm(k) \middle| \frac{\partial}{\partial \phi} \middle| u_\pm(k) \right\rangle{}  \mathrm{d}k \\
-   &= \int_{-\pi}^{\pi}  \frac{\partial \phi}{\partial k} \mathrm{d}k \\
-\end{aligned}
-$$
-となる。すなわち、Winding number が 1なら$\gamma_\pm =\pi$, 0なら$\gamma_\pm =0$となる。
+したがって、このゲージと単位胞の取り方では \(\nu=1\) のとき \(\gamma_\pm=\pi\)、\(\nu=0\) のとき \(\gamma_\pm=0\) となる。Zak phase は一般には単位胞原点の選び方に依存するが、同じ規約で比較した相の差と、対称性による \(0/\pi\) の量子化が物理的に重要である。
 
 
 ## バルク-エッジ対応
@@ -327,10 +286,6 @@ def ekdk(v=0.5,w=0.5):
     plt.text(0.25,1.4,r'$d_y$',fontsize=20); plt.text(2,-0.5,r'$d_x$',fontsize=20);
 ```
 
-
-    interactive(children=(FloatSlider(value=0.5, description='v', max=1.0, min=-1.0), FloatSlider(value=0.5, descr…
-
-
 ### 有限系の計算
 
 
@@ -385,9 +340,9 @@ def enpsi(vi=10,n=L):
     plt.ylim(-2.99,2.99)
 
     plt.subplot(133)
-    plt.bar(np.array(range(0,2*L,2)),  np.real(np.array(vecdat[vi][0::2,n].T)),0.9,color='grey',label='A')  # sublattice A
-    plt.bar(np.array(range(0,2*L,2))+1,np.real(np.array(vecdat[vi][1::2,n].T)),0.9,color='blue',label='B') # sublattice B    
-    plt.ylim(-1.2,1.2)
+    plt.bar(np.array(range(0,2*L,2)),  np.abs(np.asarray(vecdat[vi][0::2, n]).ravel())**2,0.9,color='grey',label='A')  # sublattice A
+    plt.bar(np.array(range(0,2*L,2))+1,np.abs(np.asarray(vecdat[vi][1::2, n]).ravel())**2,0.9,color='blue',label='B') # sublattice B    
+    plt.ylim(0, 1.0)
     plt.yticks(np.linspace(-1,1,5))
     plt.ylabel(r'$|\psi|^2$',fontsize=fs, rotation=-90)
     #plt.grid()
@@ -397,66 +352,28 @@ def enpsi(vi=10,n=L):
 
 ```
 
-
-    <Figure size 1500x600 with 0 Axes>
-
-
-
-    interactive(children=(IntSlider(value=10, description='vi', max=29), IntSlider(value=20, description='n', max=…
-
-
 ### Zak phase の数値計算
 
-一般に $n\times n$ の Hamiltonian で記述される系の Zak phase 
+数値固有ベクトルの位相は各 \(k\) で任意なので、Berry connection を有限差分して直接足し合わせる方法は不安定である。代わりに、閉じた離散波数列 \(k_0,\ldots,k_{N-1}\) に対して正規化したリンク変数
 
 $$
-\begin{aligned}
-   \gamma_\pm &= \int_0^{2\pi} A_\pm(k) \mathrm{d}k \\
-   &= - i\int_0^{2\pi} \left\langle u_\pm(k) \middle| \frac{\partial}{\partial k} \middle| u_\pm(k) \right\rangle{} \mathrm{d}k
-\end{aligned}
+U_{n,\pm}
+=\frac{\langle u_\pm(k_n)\mid u_\pm(k_{n+1})\rangle}
+{\left|\langle u_\pm(k_n)\mid u_\pm(k_{n+1})\rangle\right|},
+\qquad k_N\equiv k_0
 $$
 
-を解析的に計算できるとは限らず、多くの場合には数値計算に頼る必要がある。ところが、被積分関数であるBerry connection $A_\pm(k)$ はGauge依存性を持つから、上の式をそのまま離散化してもうまく計算することができない。
-- $\lvert u_\pm(k) \rangle{}$ がハミルトニアン $\hat{H}(k)$ の固有ベクトルであるとき、$e^{i\theta}\lvert u_\pm(k) \rangle{}, \ \theta \in [0,2\pi)$ もまた固有ベクトルである。そして、<b>numpyなどで数値的に固有値問題を解いた場合、得られる固有ベクトルの位相はバラバラである。</b>そのため、各 $k$ に対して $\hat{H}(k)$ から固有ベクトル $\lvert u_\pm(k) \rangle{}$ を計算して足し合わせると、Gauge依存性によって正しい値を計算することができない。
-
-この[Gauge依存性をうまく回避するテクニック](https://journals.jps.jp/doi/pdf/10.1143/JPSJ.74.1674)があるので、以下で紹介する。
-$\Delta k = 2\pi / N$ として $\mathrm{d}k \to \Delta k$ と 離散化すると
+を定義する。Wilson loop と Zak phase は
 
 $$
-\begin{aligned}
-\frac{\partial}{\partial k} \lvert u_\pm(k) \rangle{} \mathrm{d}k \approx \frac{\lvert u_\pm(k + \Delta k) \rangle{} - \lvert u_\pm(k) \rangle{}}{\Delta k} \Delta k = \lvert u_\pm(k + \Delta k) \rangle{} - \lvert u_\pm(k) \rangle{}
-\end{aligned}
+W_\pm=\prod_{n=0}^{N-1}U_{n,\pm},
+\qquad
+\gamma_\pm=\operatorname{Arg}W_\pm
+\quad (\mathrm{mod}\ 2\pi)
 $$
 
-より、$k_n = n\Delta k, \ n\in \{0, 1, \ldots, N\}$ として
+で与えられる。リンクを絶対値で正規化することで、有限分割に由来する不要な振幅誤差を除き、位相だけを積算できる。最後の点と最初の点の重なりを必ず含める必要がある。
 
-$$
-\begin{aligned}
-   \gamma_\pm &\approx i \sum_{n=0}^{N-1} \left(\left\langle u_\pm(k_n) \middle| u_\pm(k_n + \Delta k) \right\rangle{} - \left\langle u_\pm(k_n) \middle| u_\pm(k_n) \right\rangle{} \right) \\
-    &= i \sum_{n=0}^{N-1} \left(\left\langle u_\pm(k_n) \middle| u_\pm(k_n + \Delta k) \right\rangle{} - 1 \right) \\
-    &\approx i \sum_{n=0}^{N-1} \log\left(\left\langle u_\pm(k_n) \middle| u_\pm(k_n + \Delta k) \right\rangle{}\right) \\
-    &= i \log \prod_{n=0}^{N-1} \left\langle u_\pm(k_n) \middle| u_\pm(k_n + \Delta k) \right\rangle{} \\
-\end{aligned}
-$$
-
-となる。いずれの近似 $\approx$ も $\Delta k \to 0$ で厳密になる。
-ここで、
-$$
-\begin{aligned}
-  W_\pm = \prod_{n=0}^{N-1} \left\langle u_\pm(k_n) \middle| u_\pm(k_n + \Delta k) \right\rangle{}\end{aligned}
-$$
-
-はWillson loopと呼ばれる量である。すなわち、
-
-$$
-\begin{aligned}
-   \gamma_\pm &= i \log W_\pm
-\end{aligned}
-$$
-
-が成り立つ。$W_\pm$ はGauge不変量であるから、数値的な計算が容易である。（logを用いて和を積の形に変換することで、Gauge自由度を相殺することができる。）
-
-2x2ハミルトニアンの定義:
 
 
 ```python
@@ -469,65 +386,34 @@ def H_SSH(k,v,w,m=0):
 
 上の実装では、追加でChiral対称性を壊す項 $m$ を加えている。$m\neq 0$ のときにトポロジカル性が失われることを後ほど確認する。
 
-\begin{equation}
+$$
+\begin{aligned}
 H'(k) = 
 \begin{bmatrix} 
     m & v + w e^{-ik} \\
     v + w e^{ik} & -m
 \end{bmatrix} 
-\end{equation}
+\end{aligned}
+$$
 
 各$k$に対して、固有値を計算。（COMSOLのパラメトリックスイープに対応）
 
 
 ```python
-def gen_data(H,v,w,m=0,N=36):
+def gen_data(H, v, w, m=0.0, N=101):
+    """Hermitian SSH model on N points in [-pi, pi)."""
+    k_list = np.linspace(-np.pi, np.pi, N, endpoint=False)
     eigenvalues = []
-    npr_psiR = []
-    npr_psiL = []
-    # 各kに対して固有値と固有ベクトルを計算
-    for i in range(N+1):
-        k = (i*2)*np.pi/N
+    eigenvectors = []
 
-        Hamiltonian = H(k,v,w,m=m)
-        # non-Hermitian の場合に拡張するために、左固有ベクトルと右固有ベクトルに分けて計算。
-        # もちろん、Hermite の場合は、psiL = psiR となる。
-        EL, psiLraw = np.linalg.eig(np.conj(Hamiltonian.T))
-        E, psiRraw = np.linalg.eig(Hamiltonian)
+    for k in k_list:
+        Hamiltonian = H(k, v, w, m=m)
+        E, U = np.linalg.eigh(Hamiltonian)
+        eigenvalues.append(E)
+        eigenvectors.append(U)
 
-        psiL = np.zeros([2,2],dtype=complex)
-        psiR = np.zeros([2,2],dtype=complex)
-        for j in range(2):
-            norm = np.sqrt(np.dot(np.conj(psiLraw[:,j]),psiRraw[:,j]))
-            psiL[:,j] = psiLraw[:,j] / norm
-            psiR[:,j] = psiRraw[:,j] / norm
-
-        # 固有値と固有ベクトルをソート
-        eps = 1e-14
-        if i == 0:
-            if abs((E[1]-E[0]).real) > eps:
-                idx = E.real.argsort()
-            else:
-                idx = E.imag.argsort()
-
-        if i >= 1:
-            error1 = (E[0].real - eigenvalues[i-1][0].real)**2 + (E[1].real - eigenvalues[i-1][1].real)**2 + (E[0].imag - eigenvalues[i-1][0].imag)**2 + (E[1].imag - eigenvalues[i-1][1].imag)**2
-            error2 = (E[0].real - eigenvalues[i-1][1].real)**2 + (E[1].real - eigenvalues[i-1][0].real)**2 + (E[0].imag - eigenvalues[i-1][1].imag)**2 + (E[1].imag - eigenvalues[i-1][0].imag)**2
-            if error1 <= error2:
-                idx = [0,1]
-            else:
-                idx = [1,0]
-
-        eigenvalues.append(E[idx])
-        npr_psiR.append(psiR[:,idx])
-        npr_psiL.append(psiL[:,idx])
-    
-    eigenvalues = np.array(eigenvalues)
-    npr_psiR = np.array(npr_psiR)
-    npr_psiL = np.array(npr_psiL)
-    
-    k_list = [(i*2)*np.pi/N for i in range(N+1)]
-    return k_list, eigenvalues, npr_psiR, npr_psiL
+    eigenvectors = np.asarray(eigenvectors)
+    return k_list, np.asarray(eigenvalues), eigenvectors, eigenvectors.copy()
 
 ```
 
@@ -545,7 +431,7 @@ def bnd_plot(k_list, eigenvalues, bandtype="Re", fs=18):
             plt.plot(k_list, eigenvalues[:,i].imag)
     plt.xlabel(r"$k_x a$", fontsize=fs)
     plt.ylabel(bandtype + "$(E)$", fontsize=fs)
-    plt.xticks(np.linspace(0,2*np.pi,5),[r'$-\pi$',r'$-\pi/2$',r'$0$',r'$\pi/2$',r'$\pi$'],fontsize=fs)
+    plt.xticks(np.linspace(-np.pi, np.pi, 5), [r'$-\pi$', r'$-\pi/2$', r'$0$', r'$\pi/2$', r'$\pi$'], fontsize=fs)
     plt.tick_params(labelsize=fs*0.8)
     plt.show()
 ```
@@ -568,136 +454,33 @@ k_list, eigenvalues, npr_psiR, npr_psiL = gen_data(H_SSH, v, w, m=m, N=N)
 
 
 ```python
-n_bnd = npr_psiR.shape[1]
-wilson_loop = np.ones(n_bnd,dtype=complex)
-phase = np.zeros([npr_psiR.shape[0], n_bnd],dtype=complex)
+def zak_phase_from_eigenvectors(eigenvectors, atol=1e-12):
+    """Return one Zak phase per band in the interval [-pi, pi]."""
+    n_k, _, n_band = eigenvectors.shape
+    phases = np.zeros(n_band)
 
-for i in range(npr_psiR.shape[0]):
-    for j in range(n_bnd):
-        phase_ij = np.dot(np.conj(npr_psiL[i,:,j]), npr_psiR[i-1,:,j] )
-        #phase_ij /= abs(phase_ij)
-        wilson_loop[j] *= phase_ij
-        phase[i,j] = phase_ij
+    for band in range(n_band):
+        wilson_loop = 1.0 + 0.0j
+        for n in range(n_k):
+            u_n = eigenvectors[n, :, band]
+            u_next = eigenvectors[(n + 1) % n_k, :, band]
+            overlap = np.vdot(u_n, u_next)
+            if abs(overlap) < atol:
+                raise ValueError("Adjacent eigenvectors have nearly zero overlap.")
+            wilson_loop *= overlap / abs(overlap)
+        phases[band] = np.angle(wilson_loop)
 
-wilson_loop = np.log(wilson_loop) / (2*np.pi*1.j)
-print("Wilson loop:", wilson_loop)
+    return phases
+
+zak_phase = zak_phase_from_eigenvectors(npr_psiR)
+print("Zak phase / pi:", zak_phase / np.pi)
 
 ```
-
-    Wilson loop: [0.5+0.02454012j 0.5+0.02454012j]
-
 
 
 ```python
 npr_psiL[:,:,0]
 ```
-
-
-
-
-    array([[ 0.70710678+0.00000000e+00j, -0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.70672016-2.33797162e-02j],
-           [-0.70556058+4.67361671e-02j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.70362884-7.00461084e-02j],
-           [ 0.70710678+0.00000000e+00j, -0.70092629-9.32863373e-02j],
-           [ 0.70710678+0.00000000e+00j, -0.69745479-1.16433714e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.69321675-1.39465180e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.68821505-1.62357781e-01j],
-           [-0.68245306+1.85088686e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.67593463-2.07635205e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.66866403-2.29974809e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.66064595-2.52085149e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.65188545-2.73944073e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.64238791-2.95529640e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.632159  -3.16820138e-01j],
-           [-0.62120459+3.37794096e-01j,  0.70710678+0.00000000e+00j],
-           [-0.60953074+3.58430297e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.59714354-3.78707787e-01j],
-           [-0.5840491 +3.98605883e-01j,  0.70710678+0.00000000e+00j],
-           [-0.57025336+4.18104174e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.55576203-4.37182526e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.54058038-4.55821072e-01j],
-           [-0.52471307+4.74000201e-01j,  0.70710678+0.00000000e+00j],
-           [-0.50816393+4.91700540e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.49093566-5.08902920e-01j],
-           [-0.4730295 +5.25588331e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.45444482-5.41737860e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.43517855-5.57332599e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.41522458-5.72353517e-01j],
-           [-0.39457282+5.86781295e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.37320818-6.00596079e-01j],
-           [-0.35110911+6.13777151e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.3282457 -6.26302450e-01j],
-           [-0.30457718+6.38147901e-01j,  0.70710678+0.00000000e+00j],
-           [-0.28004844+6.49286431e-01j,  0.70710678+0.00000000e+00j],
-           [-0.25458533+6.59686523e-01j,  0.70710678+0.00000000e+00j],
-           [-0.22808791+6.69310022e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.20042083-6.78108761e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.17139917-6.86019188e-01j],
-           [-0.14076707+6.92953556e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.1081646 -6.98784959e-01j],
-           [-0.0730746 +7.03320769e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.03473452-7.06253151e-01j],
-           [ 0.00801594+7.07061344e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j,  0.05700954-7.04804875e-01j],
-           [ 0.11526714+6.97648541e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.18798685+6.81660433e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.28431445+6.47429760e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.4187591 +5.69772597e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j,  0.59542847-3.81398660e-01j],
-           [ 0.70710678+0.00000000e+00j,  0.70710678-8.65956056e-16j],
-           [ 0.59542847-3.81398660e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j,  0.4187591 +5.69772597e-01j],
-           [ 0.28431445-6.47429760e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j,  0.18798685+6.81660433e-01j],
-           [ 0.70710678+0.00000000e+00j,  0.11526714+6.97648541e-01j],
-           [ 0.70710678+0.00000000e+00j,  0.05700954+7.04804875e-01j],
-           [ 0.70710678+0.00000000e+00j,  0.00801594+7.07061344e-01j],
-           [-0.03473452-7.06253151e-01j,  0.70710678+0.00000000e+00j],
-           [-0.0730746 -7.03320769e-01j,  0.70710678+0.00000000e+00j],
-           [-0.1081646 -6.98784959e-01j,  0.70710678+0.00000000e+00j],
-           [-0.14076707-6.92953556e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.17139917+6.86019188e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.20042083+6.78108761e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.22808791+6.69310022e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.25458533+6.59686523e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.28004844+6.49286431e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.30457718+6.38147901e-01j],
-           [-0.3282457 -6.26302450e-01j,  0.70710678+0.00000000e+00j],
-           [-0.35110911-6.13777151e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.37320818+6.00596079e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.39457282+5.86781295e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.41522458+5.72353517e-01j],
-           [-0.43517855-5.57332599e-01j,  0.70710678+0.00000000e+00j],
-           [-0.45444482-5.41737860e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.4730295 +5.25588331e-01j],
-           [-0.49093566-5.08902920e-01j,  0.70710678+0.00000000e+00j],
-           [-0.50816393-4.91700540e-01j,  0.70710678+0.00000000e+00j],
-           [-0.52471307-4.74000201e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.54058038+4.55821072e-01j],
-           [-0.55576203-4.37182526e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.57025336+4.18104174e-01j],
-           [-0.5840491 -3.98605883e-01j,  0.70710678+0.00000000e+00j],
-           [-0.59714354-3.78707787e-01j,  0.70710678+0.00000000e+00j],
-           [-0.60953074-3.58430297e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.62120459+3.37794096e-01j],
-           [-0.632159  -3.16820138e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.64238791+2.95529640e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.65188545+2.73944073e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.66064595+2.52085149e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.66866403+2.29974809e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.67593463+2.07635205e-01j],
-           [-0.68245306-1.85088686e-01j,  0.70710678+0.00000000e+00j],
-           [-0.68821505-1.62357781e-01j,  0.70710678+0.00000000e+00j],
-           [ 0.70710678+0.00000000e+00j, -0.69321675+1.39465180e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.69745479+1.16433714e-01j],
-           [ 0.70710678+0.00000000e+00j, -0.70092629+9.32863373e-02j],
-           [ 0.70710678+0.00000000e+00j, -0.70362884+7.00461084e-02j],
-           [ 0.70710678+0.00000000e+00j, -0.70556058+4.67361671e-02j],
-           [ 0.70710678+0.00000000e+00j, -0.70672016+2.33797162e-02j],
-           [ 0.70710678+0.00000000e+00j, -0.70710678+9.11532691e-17j]])
-
-
 
 
 ```python
@@ -708,20 +491,6 @@ plt.plot(phase_pi)
 
 
 ```
-
-
-
-
-    [<matplotlib.lines.Line2D at 0x211894d8bd0>,
-     <matplotlib.lines.Line2D at 0x211894d86d0>]
-
-
-
-
-    
-![png](README_files/README_23_1.png)
-    
-
 
 上のコードを適当に弄ると、非エルミートな場合の計算も可能。各自試してみてください。
 

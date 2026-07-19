@@ -56,6 +56,7 @@ jobs:
       - name: Validate generated README
         run: |
           python - <<'PY'
+          import re
           from pathlib import Path
 
           text = Path("README.md").read_text(encoding="utf-8")
@@ -93,6 +94,28 @@ jobs:
                   raise SystemExit(f"Unsupported or stale expression remains: {expression}")
           if text.count("$$") % 2:
               raise SystemExit("Unbalanced display-math delimiters ($$).")
+
+          spacing_errors = []
+          fenced_parts = re.split(r"(```.*?```)", text, flags=re.DOTALL)
+          for fenced_index in range(0, len(fenced_parts), 2):
+              display_parts = re.split(
+                  r"(\$\$.*?\$\$)",
+                  fenced_parts[fenced_index],
+                  flags=re.DOTALL,
+              )
+              for display_index in range(0, len(display_parts), 2):
+                  plain = display_parts[display_index]
+                  for pattern in (
+                      r"[^\s\n$]\$[^\n$]+?\$",
+                      r"\$[^\n$]+?\$[^\s\n$]",
+                  ):
+                      spacing_errors.extend(match.group(0) for match in re.finditer(pattern, plain))
+
+          if spacing_errors:
+              preview = "\n".join(spacing_errors[:10])
+              raise SystemExit(
+                  "Inline math without surrounding ASCII spaces remains:\n" + preview
+              )
           PY
 
       - name: Commit notebook and generated README
@@ -103,6 +126,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Notebook and README are already up to date."
           else
-            git commit -m "Fix GitHub README math rendering"
+            git commit -m "Normalize inline math spacing"
             git push
           fi

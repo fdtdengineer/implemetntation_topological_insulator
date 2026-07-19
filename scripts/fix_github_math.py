@@ -28,13 +28,39 @@ def repair_github_math(text: str) -> str:
         text,
     )
 
-    # GitHub currently reports a false 'Missing \\end{cases}' error for this
-    # environment. An aligned environment conveys the same two phase cases.
-    text = text.replace(r"\begin{cases}", r"\begin{aligned}")
-    text = text.replace(r"\end{cases}", r"\end{aligned}")
+    # Negative thin space is exposed as a literal exclamation mark by GitHub's
+    # renderer in this README, so omit it entirely.
+    text = text.replace(r"\!", "")
+
+    # Avoid cases/aligned for the two-line phase classification. GitHub has
+    # reported false missing-end errors for both variants in this block.
+    phase_classification = (
+        r"\nu=0 \quad (v>w,\ \mathrm{trivial}),"
+        "\n"
+        r"\qquad"
+        "\n"
+        r"\nu=1 \quad (v<w,\ \mathrm{topological})."
+    )
+    text = re.sub(
+        r"\\nu\s*=\s*\\begin\{cases\}.*?\\end\{cases\}",
+        lambda _match: phase_classification,
+        text,
+        flags=re.DOTALL,
+    )
+    text = re.sub(
+        r"\\begin\{aligned\}\s*\\nu.*?\\mathrm\{trivial\}.*?"
+        r"\\mathrm\{topological\}.*?\\end\{aligned\}",
+        lambda _match: phase_classification,
+        text,
+        flags=re.DOTALL,
+    )
 
     # Keep function names visually separated from their arguments.
-    text = re.sub(r"(\\mathrm\{(?:Arg|atan2|diag)\})(?=[A-Za-z\\])", r"\1\,", text)
+    text = re.sub(
+        r"(\\mathrm\{(?:Arg|atan2|diag)\})(?=[A-Za-z\\])",
+        r"\1\,",
+        text,
+    )
     return text
 
 
@@ -45,6 +71,8 @@ def validate(markdown: str) -> None:
         r"\operatorname": "unsupported operatorname remains",
         r"\begin{cases}": "unsupported cases environment remains",
         r"\end{cases}": "unsupported cases environment remains",
+        r"\!": "negative thin-space command remains",
+        r"\nu&=0": "fragile aligned winding block remains",
     }
     for token, message in forbidden.items():
         if token in markdown:

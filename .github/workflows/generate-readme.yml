@@ -7,7 +7,7 @@ on:
     paths:
       - "sshmodel.ipynb"
       - "scripts/normalize_notebook.py"
-      - "scripts/finalize_notebook.py"
+      - "scripts/cleanup_remaining.py"
       - "scripts/verify_ssh.py"
       - ".github/workflows/generate-readme.yml"
   workflow_dispatch:
@@ -34,8 +34,8 @@ jobs:
       - name: Normalize notebook formulas
         run: python scripts/normalize_notebook.py
 
-      - name: Finalize notebook implementation
-        run: python scripts/finalize_notebook.py
+      - name: Remove stale cells and align code
+        run: python scripts/cleanup_remaining.py
 
       - name: Verify SSH algebra and numerics
         run: python scripts/verify_ssh.py
@@ -61,7 +61,7 @@ jobs:
               r"\gamma_\pm=\operatorname{Arg}W_\pm",
               r"H_{1,2N}=H_{2N,1}=w",
               "overlap / abs(overlap)",
-              "probability = np.abs(eigenvectors[vi, :, n]) ** 2",
+              "probability = np.abs(eigenvectors_open[vi, :, n]) ** 2",
           ]
           forbidden = [
               r"[\sigma_z, H(k)] = 0",

@@ -5,7 +5,6 @@ on:
     branches:
       - main
     paths:
-      - "ssh_v251106.ipynb"
       - "sshmodel.ipynb"
       - ".github/workflows/generate-readme.yml"
   workflow_dispatch:
@@ -29,31 +28,21 @@ jobs:
       - name: Install nbconvert
         run: python -m pip install --upgrade nbconvert
 
-      - name: Rename and normalize notebook
+      - name: Normalize notebook for GitHub rendering
         run: |
           python - <<'PY'
           import json
+          import re
           from pathlib import Path
 
-          old_path = Path("ssh_v251106.ipynb")
-          new_path = Path("sshmodel.ipynb")
-          source_path = old_path if old_path.exists() else new_path
+          notebook_path = Path("sshmodel.ipynb")
+          if not notebook_path.exists():
+              raise FileNotFoundError("sshmodel.ipynb was not found.")
 
-          if not source_path.exists():
-              raise FileNotFoundError("Neither ssh_v251106.ipynb nor sshmodel.ipynb was found.")
-
-          with source_path.open("r", encoding="utf-8") as f:
+          with notebook_path.open("r", encoding="utf-8") as f:
               notebook = json.load(f)
 
-          # GitHub's MathJax renderer does not support \\bm reliably.
-          # Replace it throughout Markdown and code cells while preserving outputs and attachments.
-          for cell in notebook.get("cells", []):
-              source = cell.get("source", [])
-              if isinstance(source, list):
-                  cell["source"] = [line.replace("\\bm", "\\boldsymbol") for line in source]
-              elif isinstance(source, str):
-                  cell["source"] = source.replace("\\bm", "\\boldsymbol")
-
+          title = "# 1次元トポロジカル絶縁体：SSH模型の実装"
           citation = (
               "## Reference\n\n"
               "J. K. Asbóth, L. Oroszlány, and A. Pályi, "
@@ -63,18 +52,36 @@ jobs:
               "[arXiv:1509.02295](https://arxiv.org/abs/1509.02295).\n\n"
           )
 
-          markdown_cells = [cell for cell in notebook.get("cells", []) if cell.get("cell_type") == "markdown"]
+          markdown_cells = [
+              cell for cell in notebook.get("cells", [])
+              if cell.get("cell_type") == "markdown"
+          ]
           if not markdown_cells:
-              raise ValueError("The notebook contains no Markdown cell for the title and reference.")
+              raise ValueError("The notebook contains no Markdown cells.")
+
+          for cell in markdown_cells:
+              source = cell.get("source", [])
+              text = "".join(source) if isinstance(source, list) else source
+
+              # Commands supplied by optional LaTeX packages are not available in
+              # GitHub's math renderer. Use standard LaTeX equivalents instead.
+              text = text.replace("\\bm", "\\boldsymbol")
+              text = re.sub(r"\\ket\{([^{}]+)\}", r"\\lvert \1 \\rangle", text)
+              text = re.sub(r"\\bra\{([^{}]+)\}", r"\\langle \1 \\rvert", text)
+
+              cell["source"] = text.splitlines(keepends=True)
 
           first_cell = markdown_cells[0]
           first_text = "".join(first_cell.get("source", []))
 
-          # Remove the former informal reference sentence and any previously generated formal block.
+          # Remove the existing title and generated reference block so that this
+          # normalization remains idempotent.
           lines = first_text.splitlines()
-          cleaned_lines = []
+          body_lines = []
           skip_reference_block = False
-          for line in lines:
+          for index, line in enumerate(lines):
+              if index == 0 and line.startswith("# "):
+                  continue
               if line.strip() == "## Reference":
                   skip_reference_block = True
                   continue
@@ -85,23 +92,15 @@ jobs:
                       continue
               if "arxiv.org/abs/1509.02295" in line:
                   continue
-              cleaned_lines.append(line)
+              body_lines.append(line)
 
-          cleaned_text = "\n".join(cleaned_lines).strip()
-          cleaned = cleaned_text.splitlines()
-          if cleaned and cleaned[0].startswith("# "):
-              first_text = cleaned[0] + "\n\n" + citation + "\n".join(cleaned[1:]).lstrip()
-          else:
-              first_text = citation + cleaned_text
-
+          body = "\n".join(body_lines).strip()
+          first_text = title + "\n\n" + citation + body + "\n"
           first_cell["source"] = first_text.splitlines(keepends=True)
 
-          with new_path.open("w", encoding="utf-8") as f:
+          with notebook_path.open("w", encoding="utf-8") as f:
               json.dump(notebook, f, ensure_ascii=False, indent=1)
               f.write("\n")
-
-          if old_path.exists() and old_path != new_path:
-              old_path.unlink()
           PY
 
       - name: Convert notebook to README
@@ -121,6 +120,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Notebook and README are already up to date."
           else
-            git commit -m "Rename and normalize SSH notebook"
+            git commit -m "Update title and fix GitHub math rendering"
             git push
           fi

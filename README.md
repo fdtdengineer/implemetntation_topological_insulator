@@ -6,11 +6,11 @@ J. K. Asbóth, L. Oroszlány, and A. Pályi, *A Short Course on Topological Insu
 
 ## 概要
 
-Su–Schrieffer–Heeger（SSH）模型は、単位胞ごとに A・B の2サイトを持つ1次元の tight-binding model である。単位胞内結合を $v$、単位胞間結合を $w$ とする。
+Su–Schrieffer–Heeger（SSH）模型は、単位胞ごとに A・B の2サイトを持つ1次元の tight-binding model である。単位胞内結合を $v$ 、単位胞間結合を $w$ とする。
 
 ![SSH chain](README_files/image.png)
 
-以下では、標準的な単位胞、格子定数 $a=1$、実数結合 $v,w>0$ を基準とする。
+以下では、標準的な単位胞、格子定数 $a=1$ 、実数結合 $v,w>0$ を基準とする。
 
 ## 実空間ハミルトニアン
 
@@ -35,7 +35,7 @@ $$
 \left(|1,A\rangle,|1,B\rangle,|2,A\rangle,|2,B\rangle,\ldots\right)
 $$
 
-と並べると、$N=4$ の行列は
+と並べると、 $N=4$ の行列は
 
 $$
 H=
@@ -96,7 +96,7 @@ H(k)=d_x(k)\sigma_x+d_y(k)\sigma_y,
 d_x(k)=v+w\cos k,\quad d_y(k)=w\sin k.
 $$
 
-バンドギャップは $h(k)=0$ で閉じる。$v,w>0$ なら転移点は
+バンドギャップは $h(k)=0$ で閉じる。 $v,w>0$ なら転移点は
 
 $$
 v=w,\qquad k=\pi
@@ -146,9 +146,9 @@ $$
 \sigma_zH(k)\sigma_z^{-1}=-H(k)
 $$
 
-が成り立つ。これは**反交換関係**であり、$[\sigma_z,H(k)]=0$ ではない。
+が成り立つ。これは**反交換関係**であり、 $[\sigma_z,H(k)]=0$ ではない。
 
-また、$\sigma_z=\mathrm{diag}(1,-1)$ は A/B サブ格子へ相対的な符号を与える演算子である。A/B を交換する演算子は $\sigma_x$ である。
+また、 $\sigma_z=\mathrm{diag}(1,-1)$ は A/B サブ格子へ相対的な符号を与える演算子である。A/B を交換する演算子は $\sigma_x$ である。
 
 ## Winding number
 
@@ -172,7 +172,7 @@ $$
 \nu=1 \quad (v<w,\ \mathrm{topological}).
 $$
 
-$v=w$ ではギャップが閉じるため、winding number は定義できない。実数結合の符号も許す場合、この規約では $|w|>|v|$ なら $\nu=1$、$|w|<|v|$ なら $\nu=0$ である。Fourier変換の向きを逆にすると $\nu$ の符号は反転するが、相の分類は変わらない。
+$v=w$ ではギャップが閉じるため、winding number は定義できない。実数結合の符号も許す場合、この規約では $|w|>|v|$ なら $\nu=1$ 、 $|w|<|v|$ なら $\nu=0$ である。Fourier変換の向きを逆にすると $\nu$ の符号は反転するが、相の分類は変わらない。
 
 ![Winding trajectory](README_files/image-4.png)
 
@@ -264,7 +264,7 @@ def H_SSH(k: float, v: float, w: float, m: float = 0.0) -> np.ndarray:
     )
 ```
 
-$m\sigma_z$ は staggered onsite term であり、$m\neq0$ ではカイラル対称性を破る。この場合、Zak phase は一般に $0$ または $\pi$ に量子化されず、零エネルギー端状態もカイラル対称性によって保護されない。
+$m\sigma_z$ は staggered onsite term であり、 $m\neq0$ ではカイラル対称性を破る。この場合、Zak phase は一般に $0$ または $\pi$ に量子化されず、零エネルギー端状態もカイラル対称性によって保護されない。
 
 ### バンド構造
 
@@ -348,7 +348,7 @@ for v, w in [(1.2, 1.0), (0.8, 1.0)]:
     print(v, w, zak_phase_from_eigenvectors(vectors) / np.pi)
 ```
 
-期待される結果は、trivial相で $0$、topological相で $\pm1$、すなわち $\pm\pi\equiv\pi\pmod{2\pi}$ である。
+期待される結果は、trivial相で $0$ 、topological相で $\pm1$ 、すなわち $\pm\pi\equiv\pi\pmod{2\pi}$ である。
 
 ### 開放有限鎖
 

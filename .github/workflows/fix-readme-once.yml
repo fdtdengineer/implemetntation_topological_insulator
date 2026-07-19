@@ -1,0 +1,61 @@
+name: One-time README math repair
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/fix-readme-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Repair remaining README math
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("README.md")
+          text = path.read_text(encoding="utf-8")
+
+          old = r'''$$
+          \begin{aligned}
+          \nu&=0 && (v>w,\ \mathrm{trivial}),\\
+          \nu&=1 && (v<w,\ \mathrm{topological}).
+          \end{aligned}
+          $$'''.replace("          ", "")
+          new = r'''$$
+          \nu=0 \quad (v>w,\ \mathrm{trivial}),
+          \qquad
+          \nu=1 \quad (v<w,\ \mathrm{topological}).
+          $$'''.replace("          ", "")
+
+          if old not in text:
+              raise SystemExit("Expected winding-number block was not found.")
+
+          text = text.replace(old, new)
+          text = text.replace(r"\!", "")
+
+          forbidden = [r"\nu&=0", r"\!", "Missing \\end{aligned}"]
+          for token in forbidden:
+              if token in text:
+                  raise SystemExit(f"README repair failed; token remains: {token}")
+
+          path.write_text(text, encoding="utf-8")
+          PY
+
+      - name: Remove one-time workflow and commit
+        run: |
+          rm .github/workflows/fix-readme-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md .github/workflows/fix-readme-once.yml
+          git commit -m "Remove final README math error"
+          git push

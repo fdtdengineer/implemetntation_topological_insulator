@@ -63,11 +63,17 @@ jobs:
               source = cell.get("source", [])
               text = "".join(source) if isinstance(source, list) else source
 
-              # Commands supplied by optional LaTeX packages are not available in
-              # GitHub's math renderer. Use standard LaTeX equivalents instead.
+              # Optional-package commands such as \bm, \ket and \bra are not
+              # available in GitHub's math renderer. Replace them with standard
+              # LaTeX and terminate closing control words explicitly with {}.
               text = text.replace("\\bm", "\\boldsymbol")
-              text = re.sub(r"\\ket\{([^{}]+)\}", r"\\lvert \1 \\rangle", text)
-              text = re.sub(r"\\bra\{([^{}]+)\}", r"\\langle \1 \\rvert", text)
+              text = re.sub(r"\\ket\{([^{}]+)\}", r"\\lvert \1 \\rangle{}", text)
+              text = re.sub(r"\\bra\{([^{}]+)\}", r"\\langle \1 \\rvert{}", text)
+
+              # Repair notation converted by earlier workflow versions, where
+              # expressions such as \bra{k}H became the invalid command \rvertH.
+              text = re.sub(r"\\rangle(?!\{\})", r"\\rangle{}", text)
+              text = re.sub(r"\\rvert(?!\{\})", r"\\rvert{}", text)
 
               cell["source"] = text.splitlines(keepends=True)
 
@@ -98,6 +104,19 @@ jobs:
           first_text = title + "\n\n" + citation + body + "\n"
           first_cell["source"] = first_text.splitlines(keepends=True)
 
+          # Static checks for the unsupported or accidentally joined commands
+          # that previously caused GitHub's math compilation to fail.
+          all_markdown = "\n".join(
+              "".join(cell.get("source", []))
+              for cell in markdown_cells
+          )
+          forbidden = [r"\\bm", r"\\ket", r"\\bra"]
+          for command in forbidden:
+              if re.search(command, all_markdown):
+                  raise ValueError(f"Unsupported LaTeX command remains: {command}")
+          if re.search(r"\\r(?:angle|vert)[A-Za-z]", all_markdown):
+              raise ValueError("A closing Dirac-notation command is joined to following text.")
+
           with notebook_path.open("w", encoding="utf-8") as f:
               json.dump(notebook, f, ensure_ascii=False, indent=1)
               f.write("\n")
@@ -120,6 +139,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Notebook and README are already up to date."
           else
-            git commit -m "Update title and fix GitHub math rendering"
+            git commit -m "Fix Dirac notation rendering in README"
             git push
           fi

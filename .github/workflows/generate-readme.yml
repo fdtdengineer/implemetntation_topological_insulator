@@ -8,6 +8,7 @@ on:
       - "sshmodel.ipynb"
       - "scripts/normalize_notebook.py"
       - "scripts/cleanup_remaining.py"
+      - "scripts/fix_github_math.py"
       - "scripts/verify_ssh.py"
       - ".github/workflows/generate-readme.yml"
   workflow_dispatch:
@@ -37,6 +38,9 @@ jobs:
       - name: Remove stale cells and align code
         run: python scripts/cleanup_remaining.py
 
+      - name: Repair math for GitHub Markdown
+        run: python scripts/fix_github_math.py
+
       - name: Verify SSH algebra and numerics
         run: python scripts/verify_ssh.py
 
@@ -58,7 +62,7 @@ jobs:
           required = [
               r"\{\sigma_z,H(k)\}=0",
               r"\frac{1}{2}\int_{-\pi}^{\pi}",
-              r"\gamma_\pm=\operatorname{Arg}W_\pm",
+              r"\gamma_\pm=\mathrm{Arg}\,W_\pm",
               r"H_{1,2N}=H_{2N,1}=w",
               "overlap / abs(overlap)",
               "probability = np.abs(eigenvectors_open[vi, :, n]) ** 2",
@@ -67,6 +71,11 @@ jobs:
               r"[\sigma_z, H(k)] = 0",
               r"H_{1,2N}=H_{2N,1}=v",
               r"\begin{equation}",
+              r"\operatorname",
+              r"\begin{cases}",
+              r"\end{cases}",
+              r"\(",
+              r"\)",
               "Willson loop",
               "phase_pi = np.angle(phase)",
               "npr_psiL[:,:,0]",
@@ -79,7 +88,7 @@ jobs:
                   raise SystemExit(f"Required corrected expression is missing: {expression}")
           for expression in forbidden:
               if expression in text:
-                  raise SystemExit(f"Known incorrect or stale expression remains: {expression}")
+                  raise SystemExit(f"Unsupported or stale expression remains: {expression}")
           if text.count("$$") % 2:
               raise SystemExit("Unbalanced display-math delimiters ($$).")
           PY
@@ -92,6 +101,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Notebook and README are already up to date."
           else
-            git commit -m "Complete SSH formula and code audit"
+            git commit -m "Fix GitHub README math rendering"
             git push
           fi

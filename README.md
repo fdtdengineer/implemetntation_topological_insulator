@@ -6,35 +6,36 @@ J. K. Asbóth, L. Oroszlány, and A. Pályi, *A Short Course on Topological Insu
 
 ## 概要
 
-Su–Schrieffer–Heeger（SSH）模型は、単位胞ごとに A・B の2サイトを持つ1次元の tight-binding model である。単位胞内結合を \(v\)、単位胞間結合を \(w\) とする。
+Su–Schrieffer–Heeger（SSH）模型は、単位胞ごとに A・B の2サイトを持つ1次元の tight-binding model である。単位胞内結合を $v$、単位胞間結合を $w$ とする。
 
 ![SSH chain](README_files/image.png)
 
-以下では、標準的な単位胞、格子定数 \(a=1\)、実数結合 \(v,w>0\) を基準とする。
+以下では、標準的な単位胞、格子定数 $a=1$、実数結合 $v,w>0$ を基準とする。
 
 ## 実空間ハミルトニアン
 
-\(N\) 個の単位胞からなる鎖のハミルトニアンは
+$N$ 個の単位胞からなる開放鎖のハミルトニアンは
 
 $$
-H=
- v\sum_{l=1}^{N}
- \left(
- |l,B\rangle\langle l,A|+|l,A\rangle\langle l,B|
- \right)
- +w\sum_{l=1}^{N-1}
- \left(
- |l+1,A\rangle\langle l,B|+|l,B\rangle\langle l+1,A|
- \right)
+\begin{aligned}
+H={}&v\sum_{l=1}^{N}
+\left(
+|l,B\rangle\langle l,A|+|l,A\rangle\langle l,B|
+\right)\\
+&+w\sum_{l=1}^{N-1}
+\left(
+|l+1,A\rangle\langle l,B|+|l,B\rangle\langle l+1,A|
+\right).
+\end{aligned}
 $$
 
-である。基底を
+基底を
 
 $$
-(|1,A\rangle,|1,B\rangle,|2,A\rangle,|2,B\rangle,\ldots)
+\left(|1,A\rangle,|1,B\rangle,|2,A\rangle,|2,B\rangle,\ldots\right)
 $$
 
-と並べると、開放境界条件における \(N=4\) の行列は
+と並べると、$N=4$ の行列は
 
 $$
 H=
@@ -64,25 +65,27 @@ $$
 
 $$
 |k,\alpha\rangle
-=\frac{1}{\sqrt N}\sum_{l=1}^{N}e^{ikl}|l,\alpha\rangle,
+=\frac{1}{\sqrt{N}}\sum_{l=1}^{N}e^{ikl}|l,\alpha\rangle,
 \qquad \alpha\in\{A,B\}
 $$
 
-と定義する。基底を \((|k,A\rangle,|k,B\rangle)\) とすると
+と定義する。基底を $\left(|k,A\rangle,|k,B\rangle\right)$ とすると
 
 $$
-H(k)=
+\begin{aligned}
+H(k)
+&=
 \begin{bmatrix}
 0&v+we^{-ik}\\
 v+we^{ik}&0
-\end{bmatrix}
-=
+\end{bmatrix}\\
+&=
 \begin{bmatrix}
 0&h(k)^*\\
 h(k)&0
 \end{bmatrix},
-\qquad
-h(k)=v+we^{ik}.
+\qquad h(k)=v+we^{ik}.
+\end{aligned}
 $$
 
 したがって
@@ -90,10 +93,10 @@ $$
 $$
 H(k)=d_x(k)\sigma_x+d_y(k)\sigma_y,
 \qquad
-d_x=v+w\cos k,\quad d_y=w\sin k.
+d_x(k)=v+w\cos k,\quad d_y(k)=w\sin k.
 $$
 
-バンドギャップは \(h(k)=0\) で閉じる。\(v,w>0\) なら転移点は
+バンドギャップは $h(k)=0$ で閉じる。$v,w>0$ なら転移点は
 
 $$
 v=w,\qquad k=\pi
@@ -103,7 +106,7 @@ $$
 
 ## 固有値と固有ベクトル
 
-\(h(k)=|h(k)|e^{i\phi(k)}\) と書くと
+$h(k)=|h(k)|e^{i\phi(k)}$ と書くと
 
 $$
 E_\pm(k)
@@ -113,7 +116,7 @@ $$
 
 $$
 |u_\pm(k)\rangle
-=\frac{1}{\sqrt2}
+=\frac{1}{\sqrt{2}}
 \begin{bmatrix}
 1\\
 \pm e^{i\phi(k)}
@@ -123,18 +126,18 @@ $$
 位相は
 
 $$
-\phi(k)=\operatorname{Arg}(v+we^{ik})
-=\operatorname{atan2}(w\sin k,\,v+w\cos k)
+\phi(k)=\mathrm{Arg}\!\left(v+we^{ik}\right)
+=\mathrm{atan2}\!\left(w\sin k,\,v+w\cos k\right)
 $$
 
-で求める。単純な \(\arctan(y/x)\) では象限と分岐を正しく追跡できない。ギャップ閉鎖点 \(h(k)=0\) では、この位相表示は定義できない。
+で求める。単純な $\arctan(y/x)$ では象限と分岐を正しく追跡できない。ギャップ閉鎖点 $h(k)=0$ では、この位相表示は定義できない。
 
 ## カイラル対称性
 
-\(H(k)\) に \(\sigma_z\) 成分がないため
+$H(k)$ に $\sigma_z$ 成分がないため
 
 $$
-\{\sigma_z,H(k)\}=0
+\{\sigma_z,H(k)\}=0,
 $$
 
 すなわち
@@ -143,13 +146,13 @@ $$
 \sigma_zH(k)\sigma_z^{-1}=-H(k)
 $$
 
-が成り立つ。これは**反交換関係**であり、\([\sigma_z,H]=0\) ではない。
+が成り立つ。これは**反交換関係**であり、$[\sigma_z,H(k)]=0$ ではない。
 
-また、\(\sigma_z=\operatorname{diag}(1,-1)\) は A/B サブ格子へ相対的な符号を与える演算子である。A/B を交換する演算子は \(\sigma_x\) である。
+また、$\sigma_z=\mathrm{diag}(1,-1)$ は A/B サブ格子へ相対的な符号を与える演算子である。A/B を交換する演算子は $\sigma_x$ である。
 
 ## Winding number
 
-ギャップが開いている \(h(k)\neq0\) の場合、winding number を
+ギャップが開いている $h(k)\neq0$ の場合、winding number を
 
 $$
 \nu
@@ -159,19 +162,18 @@ $$
 \frac{\partial\phi(k)}{\partial k}\,dk
 $$
 
-と定義する。これは \(h(k)\) の軌跡が複素平面の原点を向き付きで何周するかを表す。
+と定義する。これは $h(k)$ の軌跡が複素平面の原点を向き付きで何周するかを表す。
 
-この Fourier 規約と \(v,w>0\) の下では
+この Fourier 規約と $v,w>0$ の下では
 
 $$
-\nu=
-\begin{cases}
-0,&v>w \quad \text{(trivial)},\\
-1,&v<w \quad \text{(topological)}.
-\end{cases}
+\begin{aligned}
+\nu&=0 && (v>w,\ \mathrm{trivial}),\\
+\nu&=1 && (v<w,\ \mathrm{topological}).
+\end{aligned}
 $$
 
-\(v=w\) ではギャップが閉じるため、winding number は定義できない。実数結合の符号も許す場合、この規約では \(|w|>|v|\) なら \(ν=1\)、\(|w|<|v|\) なら \(ν=0\) である。Fourier 変換の向きを逆にすると \(ν\) の符号は反転するが、相の分類は変わらない。
+$v=w$ ではギャップが閉じるため、winding number は定義できない。実数結合の符号も許す場合、この規約では $|w|>|v|$ なら $\nu=1$、$|w|<|v|$ なら $\nu=0$ である。Fourier変換の向きを逆にすると $\nu$ の符号は反転するが、相の分類は変わらない。
 
 ![Winding trajectory](README_files/image-4.png)
 
@@ -181,9 +183,9 @@ Berry connection を
 
 $$
 A_\pm(k)
-=-i\left\langle u_\pm(k)\middle|
+=-i\left\langle u_\pm(k)\right|
 \frac{\partial}{\partial k}
-\middle|u_\pm(k)\right\rangle
+\left|u_\pm(k)\right\rangle
 $$
 
 と定義し、Zak phase を
@@ -194,14 +196,12 @@ $$
 \qquad (\mathrm{mod}\ 2\pi)
 $$
 
-とする。
-
-上の固有ベクトルに対して
+とする。上の固有ベクトルに対して
 
 $$
-\left\langle u_\pm(k)\middle|
+\left\langle u_\pm(k)\right|
 \frac{\partial}{\partial\phi}
-\middle|u_\pm(k)\right\rangle
+\left|u_\pm(k)\right\rangle
 =\frac{i}{2}
 $$
 
@@ -212,10 +212,10 @@ $$
 \gamma_\pm
 &=-i\int_{-\pi}^{\pi}
 \frac{\partial\phi}{\partial k}
-\left\langle u_\pm(k)\middle|
+\left\langle u_\pm(k)\right|
 \frac{\partial}{\partial\phi}
-\middle|u_\pm(k)\right\rangle dk\\
-&=\frac12\int_{-\pi}^{\pi}
+\left|u_\pm(k)\right\rangle dk\\
+&=\frac{1}{2}\int_{-\pi}^{\pi}
 \frac{\partial\phi}{\partial k}\,dk\\
 &=\pi\nu
 \qquad (\mathrm{mod}\ 2\pi).
@@ -231,14 +231,14 @@ $$
 \quad (\mathrm{mod}\ 2\pi).
 $$
 
-Zak phase 自体は単位胞原点の選び方に依存する。物理的に重要なのは、同じ規約で比較した位相差と、対称性による \(0/\pi\) の量子化である。
+Zak phase 自体は単位胞原点の選び方に依存する。物理的に重要なのは、同じ規約で比較した位相差と、対称性による $0/\pi$ の量子化である。
 
 ## バルク–エッジ対応
 
 異なる winding number を持つ2領域の境界には、カイラル対称性が保たれている限り
 
 $$
-|\Delta ν|
+|\Delta\nu|
 $$
 
 個の零エネルギー境界モードが現れる。有限の topological SSH 鎖では左右の端に1個ずつ端状態が現れ、有限サイズでは両者の混成によりエネルギーが指数関数的にわずかに分裂する。
@@ -265,7 +265,7 @@ def H_SSH(k: float, v: float, w: float, m: float = 0.0) -> np.ndarray:
     )
 ```
 
-\(m\sigma_z\) は staggered onsite term であり、\(m\neq0\) ではカイラル対称性を破る。この場合、Zak phase は一般に \(0\) または \(\pi\) に量子化されず、零エネルギー端状態もカイラル対称性によって保護されない。
+$m\sigma_z$ は staggered onsite term であり、$m\neq0$ ではカイラル対称性を破る。この場合、Zak phase は一般に $0$ または $\pi$ に量子化されず、零エネルギー端状態もカイラル対称性によって保護されない。
 
 ### バンド構造
 
@@ -298,7 +298,7 @@ plt.show()
 
 ### Gauge-invariant な Zak phase
 
-数値固有ベクトルの位相は各 \(k\) で任意なので、Berry connection を単純に有限差分して足し合わせる方法は不安定である。代わりに
+数値固有ベクトルの位相は各 $k$ で任意なので、Berry connection を単純に有限差分して足し合わせる方法は不安定である。代わりに
 
 $$
 U_{n,\pm}
@@ -312,7 +312,7 @@ $$
 $$
 W_\pm=\prod_{n=0}^{N-1}U_{n,\pm},
 \qquad
-\gamma_\pm=\operatorname{Arg}W_\pm
+\gamma_\pm=\mathrm{Arg}\,W_\pm
 $$
 
 である。
@@ -349,7 +349,7 @@ for v, w in [(1.2, 1.0), (0.8, 1.0)]:
     print(v, w, zak_phase_from_eigenvectors(vectors) / np.pi)
 ```
 
-期待される結果は、trivial相で \(0\)、topological相で \(\pm1\)（すなわち \(\pm\pi\equiv\pi\pmod{2\pi}\)）である。
+期待される結果は、trivial相で $0$、topological相で $\pm1$、すなわち $\pm\pi\equiv\pi\pmod{2\pi}$ である。
 
 ### 開放有限鎖
 
@@ -383,7 +383,7 @@ for v, w in [(1.5, 1.0), (0.5, 1.0)]:
     plt.show()
 ```
 
-十分長い鎖では、topological相 \(v<w\) に2個の near-zero mode が現れ、trivial相 \(v>w\) には現れない。
+十分長い鎖では、topological相 $v<w$ に2個の near-zero mode が現れ、trivial相 $v>w$ には現れない。
 
 ## 自動検証
 
@@ -393,9 +393,9 @@ for v, w in [(1.5, 1.0), (0.5, 1.0)]:
 2. trivial/topological両相のWilson-loop Zak phase。
 3. 開放有限鎖における端状態の有無。
 
-README生成時にも、既知の誤式、未定義変数、古いWilson-loopコードが残っていないかをGitHub Actionsで検査する。
+README生成時にも、GitHubで未対応の数式マクロ、インライン数式区切り、既知の誤式が残っていないかを検査する。
 
 ## 参考文献
 
 - J. K. Asbóth, L. Oroszlány, and A. Pályi, *A Short Course on Topological Insulators*, arXiv:1509.02295.
-- T. Fukui, Y. Hatsugai, and H. Suzuki, “Chern Numbers in Discretized Brillouin Zone,” J. Phys. Soc. Jpn. **74**, 1674 (2005).
+- T. Fukui, Y. Hatsugai, and H. Suzuki, “Chern Numbers in Discretized Brillouin Zone,” *J. Phys. Soc. Jpn.* **74**, 1674 (2005).

@@ -1,0 +1,47 @@
+name: Repair README escapes
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "scripts/fix_readme_inline.py"
+      - ".github/workflows/fix-readme.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Repair README text
+        run: python scripts/fix_readme_inline.py
+
+      - name: Validate repaired README
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          text = Path("README.md").read_text(encoding="utf-8")
+          forbidden = ["\\(\nu=1\\)", "\\(\nu=0\\)", "\\(\nu\\)"]
+          for value in forbidden:
+              if value in text:
+                  raise SystemExit(f"Broken newline escape remains: {value!r}")
+          PY
+
+      - name: Commit repair
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          if git diff --cached --quiet; then
+            echo "README needs no escape repair."
+          else
+            git commit -m "Repair inline winding-number notation"
+            git push
+          fi

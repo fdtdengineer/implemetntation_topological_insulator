@@ -126,8 +126,8 @@ $$
 位相は
 
 $$
-\phi(k)=\mathrm{Arg}\!\left(v+we^{ik}\right)
-=\mathrm{atan2}\!\left(w\sin k,\,v+w\cos k\right)
+\phi(k)=\mathrm{Arg}\left(v+we^{ik}\right)
+=\mathrm{atan2}\left(w\sin k,\,v+w\cos k\right)
 $$
 
 で求める。単純な $\arctan(y/x)$ では象限と分岐を正しく追跡できない。ギャップ閉鎖点 $h(k)=0$ では、この位相表示は定義できない。
@@ -167,10 +167,9 @@ $$
 この Fourier 規約と $v,w>0$ の下では
 
 $$
-\begin{aligned}
-\nu&=0 && (v>w,\ \mathrm{trivial}),\\
-\nu&=1 && (v<w,\ \mathrm{topological}).
-\end{aligned}
+\nu=0 \quad (v>w,\ \mathrm{trivial}),
+\qquad
+\nu=1 \quad (v<w,\ \mathrm{topological}).
 $$
 
 $v=w$ ではギャップが閉じるため、winding number は定義できない。実数結合の符号も許す場合、この規約では $|w|>|v|$ なら $\nu=1$、$|w|<|v|$ なら $\nu=0$ である。Fourier変換の向きを逆にすると $\nu$ の符号は反転するが、相の分類は変わらない。

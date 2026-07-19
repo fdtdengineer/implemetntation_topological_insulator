@@ -7,13 +7,70 @@ from pathlib import Path
 NOTEBOOK_PATH = Path("sshmodel.ipynb")
 
 
+
 def source_text(cell: dict) -> str:
     source = cell.get("source", [])
     return "".join(source) if isinstance(source, list) else str(source)
 
 
+
 def set_source(cell: dict, text: str) -> None:
     cell["source"] = text.splitlines(keepends=True)
+
+
+
+def normalize_inline_math_spacing(text: str) -> str:
+    """Add ASCII spaces around inline $...$ outside code and display math."""
+    fenced_parts = re.split(r"(```.*?```)", text, flags=re.DOTALL)
+
+    for fenced_index in range(0, len(fenced_parts), 2):
+        display_parts = re.split(r"(\$\$.*?\$\$)", fenced_parts[fenced_index], flags=re.DOTALL)
+
+        for display_index in range(0, len(display_parts), 2):
+            plain = display_parts[display_index]
+
+            # Insert one ASCII space when an inline-math delimiter directly
+            # touches Japanese text, punctuation, or another non-space token.
+            plain = re.sub(
+                r"([^\s\n$])(\$[^\n$]+?\$)",
+                r"\1 \2",
+                plain,
+            )
+            plain = re.sub(
+                r"(\$[^\n$]+?\$)([^\s\n$])",
+                r"\1 \2",
+                plain,
+            )
+            display_parts[display_index] = plain
+
+        fenced_parts[fenced_index] = "".join(display_parts)
+
+    return "".join(fenced_parts)
+
+
+
+def inline_spacing_errors(text: str) -> list[str]:
+    """Return snippets containing inline math without surrounding spaces."""
+    errors: list[str] = []
+    fenced_parts = re.split(r"(```.*?```)", text, flags=re.DOTALL)
+
+    for fenced_index in range(0, len(fenced_parts), 2):
+        display_parts = re.split(r"(\$\$.*?\$\$)", fenced_parts[fenced_index], flags=re.DOTALL)
+
+        for display_index in range(0, len(display_parts), 2):
+            plain = display_parts[display_index]
+            patterns = (
+                r"[^\s\n$]\$[^\n$]+?\$",
+                r"\$[^\n$]+?\$[^\s\n$]",
+            )
+            for pattern in patterns:
+                for match in re.finditer(pattern, plain):
+                    start = max(0, match.start() - 20)
+                    end = min(len(plain), match.end() + 20)
+                    errors.append(plain[start:end].replace("\n", "\\n"))
+
+    return errors
+
 
 
 def repair_github_math(text: str) -> str:
@@ -61,7 +118,9 @@ def repair_github_math(text: str) -> str:
         r"\1\,",
         text,
     )
-    return text
+
+    return normalize_inline_math_spacing(text)
+
 
 
 def validate(markdown: str) -> None:
@@ -80,6 +139,11 @@ def validate(markdown: str) -> None:
 
     if markdown.count("$$") % 2:
         raise ValueError("Unbalanced display-math delimiters ($$).")
+
+    spacing_errors = inline_spacing_errors(markdown)
+    if spacing_errors:
+        preview = "\n".join(spacing_errors[:10])
+        raise ValueError(f"Inline math without surrounding ASCII spaces:\n{preview}")
 
 
 if not NOTEBOOK_PATH.exists():

@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "ssh_v251106.ipynb"
+      - "sshmodel.ipynb"
       - ".github/workflows/generate-readme.yml"
   workflow_dispatch:
 
@@ -28,26 +29,98 @@ jobs:
       - name: Install nbconvert
         run: python -m pip install --upgrade nbconvert
 
+      - name: Rename and normalize notebook
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          old_path = Path("ssh_v251106.ipynb")
+          new_path = Path("sshmodel.ipynb")
+          source_path = old_path if old_path.exists() else new_path
+
+          if not source_path.exists():
+              raise FileNotFoundError("Neither ssh_v251106.ipynb nor sshmodel.ipynb was found.")
+
+          with source_path.open("r", encoding="utf-8") as f:
+              notebook = json.load(f)
+
+          # GitHub's MathJax renderer does not support \\bm reliably.
+          # Replace it throughout Markdown and code cells while preserving outputs and attachments.
+          for cell in notebook.get("cells", []):
+              source = cell.get("source", [])
+              if isinstance(source, list):
+                  cell["source"] = [line.replace("\\bm", "\\boldsymbol") for line in source]
+              elif isinstance(source, str):
+                  cell["source"] = source.replace("\\bm", "\\boldsymbol")
+
+          citation = (
+              "## Reference\n\n"
+              "J. K. Asbóth, L. Oroszlány, and A. Pályi, "
+              "*A Short Course on Topological Insulators: Band-Structure Topology and Edge States in One and Two Dimensions*, "
+              "Lecture Notes in Physics **919** (Springer, 2016). "
+              "[doi:10.1007/978-3-319-25607-8](https://doi.org/10.1007/978-3-319-25607-8); "
+              "[arXiv:1509.02295](https://arxiv.org/abs/1509.02295).\n\n"
+          )
+
+          markdown_cells = [cell for cell in notebook.get("cells", []) if cell.get("cell_type") == "markdown"]
+          if not markdown_cells:
+              raise ValueError("The notebook contains no Markdown cell for the title and reference.")
+
+          first_cell = markdown_cells[0]
+          first_text = "".join(first_cell.get("source", []))
+
+          # Remove the former informal reference sentence and any previously generated formal block.
+          lines = first_text.splitlines()
+          cleaned_lines = []
+          skip_reference_block = False
+          for line in lines:
+              if line.strip() == "## Reference":
+                  skip_reference_block = True
+                  continue
+              if skip_reference_block:
+                  if line.startswith("## ") and line.strip() != "## Reference":
+                      skip_reference_block = False
+                  else:
+                      continue
+              if "arxiv.org/abs/1509.02295" in line:
+                  continue
+              cleaned_lines.append(line)
+
+          cleaned_text = "\n".join(cleaned_lines).strip()
+          cleaned = cleaned_text.splitlines()
+          if cleaned and cleaned[0].startswith("# "):
+              first_text = cleaned[0] + "\n\n" + citation + "\n".join(cleaned[1:]).lstrip()
+          else:
+              first_text = citation + cleaned_text
+
+          first_cell["source"] = first_text.splitlines(keepends=True)
+
+          with new_path.open("w", encoding="utf-8") as f:
+              json.dump(notebook, f, ensure_ascii=False, indent=1)
+              f.write("\n")
+
+          if old_path.exists() and old_path != new_path:
+              old_path.unlink()
+          PY
+
       - name: Convert notebook to README
         run: |
-          test -f ssh_v251106.ipynb
+          rm -rf README_files
           jupyter nbconvert \
             --to markdown \
             --output README \
             --output-dir . \
-            ssh_v251106.ipynb
+            sshmodel.ipynb
 
-      - name: Commit generated README
+      - name: Commit notebook and generated README
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          if [ -d README_files ]; then
-            git add README_files
-          fi
+          git add -A
           if git diff --cached --quiet; then
-            echo "README is already up to date."
+            echo "Notebook and README are already up to date."
           else
-            git commit -m "Generate README from SSH notebook"
+            git commit -m "Rename and normalize SSH notebook"
             git push
           fi

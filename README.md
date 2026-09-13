@@ -1,400 +1,178 @@
-# 1次元トポロジカル絶縁体：SSH模型の実装
+# SSH Topological Insulator
 
-## Reference
+A compact, tested NumPy implementation of the one-dimensional Su-Schrieffer-Heeger (SSH) model. The repository demonstrates Bloch-band calculations, chiral symmetry, winding and Zak invariants, Wilson-loop evaluation, and finite-chain bulk-edge correspondence.
 
-J. K. Asbóth, L. Oroszlány, and A. Pályi, *A Short Course on Topological Insulators: Band-Structure Topology and Edge States in One and Two Dimensions*, Lecture Notes in Physics **919** (Springer, 2016). [doi:10.1007/978-3-319-25607-8](https://doi.org/10.1007/978-3-319-25607-8); [arXiv:1509.02295](https://arxiv.org/abs/1509.02295).
+![Geometry of the SSH chain](figures/ssh_chain_geometry.png)
 
-## 概要
+*Source: Fig. 1.1 in J. K. Asbóth, L. Oroszlány, and A. Pályi, **A Short Course on Topological Insulators: Band-Structure Topology and Edge States in One and Two Dimensions**, Lecture Notes in Physics 919, Springer (2016), [arXiv:1509.02295](https://arxiv.org/abs/1509.02295).*
 
-Su–Schrieffer–Heeger（SSH）模型は、単位胞ごとに A・B の2サイトを持つ1次元の tight-binding model である。単位胞内結合を $v$ 、単位胞間結合を $w$ とする。
+## Highlights
 
-![SSH chain](README_files/image.png)
+- 2x2 Bloch Hamiltonian and open finite-chain Hamiltonian
+- numerical band structure from Hermitian eigendecomposition
+- gauge-invariant Zak phase from a discrete Wilson loop
+- winding-number calculation for the chiral SSH model
+- explicit bulk-edge verification through near-zero boundary states
+- physics-based tests against analytic dispersion and symmetry constraints
+- lightweight CI across Python 3.10-3.12
 
-以下では、標準的な単位胞、格子定数 $a=1$ 、実数結合 $v,w>0$ を基準とする。
+## Model
 
-## 実空間ハミルトニアン
-
-$N$ 個の単位胞からなる開放鎖のハミルトニアンは
-
-$$
-\begin{aligned}
-H={}&v\sum_{l=1}^{N}
-\left(
-|l,B\rangle\langle l,A|+|l,A\rangle\langle l,B|
-\right)\\
-&+w\sum_{l=1}^{N-1}
-\left(
-|l+1,A\rangle\langle l,B|+|l,B\rangle\langle l+1,A|
-\right).
-\end{aligned}
-$$
-
-基底を
+For intracell hopping `v` and intercell hopping `w`, the Bloch Hamiltonian in the `(A, B)` basis is
 
 $$
-\left(|1,A\rangle,|1,B\rangle,|2,A\rangle,|2,B\rangle,\ldots\right)
-$$
-
-と並べると、 $N=4$ の行列は
-
-$$
-H=
+H(k)=
 \begin{bmatrix}
-0&v&0&0&0&0&0&0\\
-v&0&w&0&0&0&0&0\\
-0&w&0&v&0&0&0&0\\
-0&0&v&0&w&0&0&0\\
-0&0&0&w&0&v&0&0\\
-0&0&0&0&v&0&w&0\\
-0&0&0&0&0&w&0&v\\
-0&0&0&0&0&0&v&0
+0 & v+w e^{-ik}\\
+v+w e^{ik} & 0
 \end{bmatrix}.
 $$
 
-周期境界条件では、最後の B サイトと最初の A サイトを結ぶため
-
-$$
-H_{1,2N}=H_{2N,1}=w
-$$
-
-を追加する。
-
-## Bloch Hamiltonian
-
-周期境界条件の下で
-
-$$
-|k,\alpha\rangle
-=\frac{1}{\sqrt{N}}\sum_{l=1}^{N}e^{ikl}|l,\alpha\rangle,
-\qquad \alpha\in\{A,B\}
-$$
-
-と定義する。基底を $\left(|k,A\rangle,|k,B\rangle\right)$ とすると
-
-$$
-\begin{aligned}
-H(k)
-&=
-\begin{bmatrix}
-0&v+we^{-ik}\\
-v+we^{ik}&0
-\end{bmatrix}\\
-&=
-\begin{bmatrix}
-0&h(k)^*\\
-h(k)&0
-\end{bmatrix},
-\qquad h(k)=v+we^{ik}.
-\end{aligned}
-$$
-
-したがって
+Equivalently,
 
 $$
 H(k)=d_x(k)\sigma_x+d_y(k)\sigma_y,
 \qquad
-d_x(k)=v+w\cos k,\quad d_y(k)=w\sin k.
-$$
-
-バンドギャップは $h(k)=0$ で閉じる。 $v,w>0$ なら転移点は
-
-$$
-v=w,\qquad k=\pi
-$$
-
-である。
-
-## 固有値と固有ベクトル
-
-$h(k)=|h(k)|e^{i\phi(k)}$ と書くと
-
-$$
-E_\pm(k)
-=\pm|h(k)|
-=\pm\sqrt{v^2+w^2+2vw\cos k},
-$$
-
-$$
-|u_\pm(k)\rangle
-=\frac{1}{\sqrt{2}}
-\begin{bmatrix}
-1\\
-\pm e^{i\phi(k)}
-\end{bmatrix}.
-$$
-
-位相は
-
-$$
-\phi(k)=\mathrm{Arg}\left(v+we^{ik}\right)
-=\mathrm{atan2}\left(w\sin k,\,v+w\cos k\right)
-$$
-
-で求める。単純な $\arctan(y/x)$ では象限と分岐を正しく追跡できない。ギャップ閉鎖点 $h(k)=0$ では、この位相表示は定義できない。
-
-## カイラル対称性
-
-$H(k)$ に $\sigma_z$ 成分がないため
-
-$$
-\{\sigma_z,H(k)\}=0,
-$$
-
-すなわち
-
-$$
-\sigma_zH(k)\sigma_z^{-1}=-H(k)
-$$
-
-が成り立つ。これは**反交換関係**であり、 $[\sigma_z,H(k)]=0$ ではない。
-
-また、 $\sigma_z=\mathrm{diag}(1,-1)$ は A/B サブ格子へ相対的な符号を与える演算子である。A/B を交換する演算子は $\sigma_x$ である。
-
-## Winding number
-
-ギャップが開いている $h(k)\neq0$ の場合、winding number を
-
-$$
-\nu
-=\frac{1}{2\pi i}\int_{-\pi}^{\pi}
-\frac{d}{dk}\log h(k)\,dk
-=\frac{1}{2\pi}\int_{-\pi}^{\pi}
-\frac{\partial\phi(k)}{\partial k}\,dk
-$$
-
-と定義する。これは $h(k)$ の軌跡が複素平面の原点を向き付きで何周するかを表す。
-
-この Fourier 規約と $v,w>0$ の下では
-
-$$
-\nu=0 \quad (v>w,\ \mathrm{trivial}),
+d_x=v+w\cos k,
 \qquad
-\nu=1 \quad (v<w,\ \mathrm{topological}).
+d_y=w\sin k.
 $$
 
-$v=w$ ではギャップが閉じるため、winding number は定義できない。実数結合の符号も許す場合、この規約では $|w|>|v|$ なら $\nu=1$ 、 $|w|<|v|$ なら $\nu=0$ である。Fourier変換の向きを逆にすると $\nu$ の符号は反転するが、相の分類は変わらない。
-
-![Winding trajectory](README_files/image-4.png)
-
-## Zak phase
-
-Berry connection を
+The band energies are
 
 $$
-A_\pm(k)
-=-i\left\langle u_\pm(k)\right|
-\frac{\partial}{\partial k}
-\left|u_\pm(k)\right\rangle
+E_\pm(k)=\pm\sqrt{v^2+w^2+2vw\cos k}.
 $$
 
-と定義し、Zak phase を
+For real positive hoppings, the gap closes at `v = w` and `k = pi`. The chiral operator is `sigma_z`, with
 
 $$
-\gamma_\pm
-=\int_{-\pi}^{\pi}A_\pm(k)\,dk
-\qquad (\mathrm{mod}\ 2\pi)
+\{\sigma_z,H(k)\}=0.
 $$
 
-とする。上の固有ベクトルに対して
+The winding number distinguishes the two gapped phases:
 
 $$
-\left\langle u_\pm(k)\right|
-\frac{\partial}{\partial\phi}
-\left|u_\pm(k)\right\rangle
-=\frac{i}{2}
-$$
-
-なので
-
-$$
-\begin{aligned}
-\gamma_\pm
-&=-i\int_{-\pi}^{\pi}
-\frac{\partial\phi}{\partial k}
-\left\langle u_\pm(k)\right|
-\frac{\partial}{\partial\phi}
-\left|u_\pm(k)\right\rangle dk\\
-&=\frac{1}{2}\int_{-\pi}^{\pi}
-\frac{\partial\phi}{\partial k}\,dk\\
-&=\pi\nu
-\qquad (\mathrm{mod}\ 2\pi).
-\end{aligned}
-$$
-
-したがって、このゲージと単位胞の規約では
-
-$$
-\nu=0\Rightarrow\gamma_\pm=0,
+\nu=0\quad(v>w),
 \qquad
-\nu=1\Rightarrow\gamma_\pm=\pi
-\quad (\mathrm{mod}\ 2\pi).
+\nu=1\quad(v<w).
 $$
 
-Zak phase 自体は単位胞原点の選び方に依存する。物理的に重要なのは、同じ規約で比較した位相差と、対称性による $0/\pi$ の量子化である。
-
-## バルク–エッジ対応
-
-異なる winding number を持つ2領域の境界には、カイラル対称性が保たれている限り
+With a consistent unit-cell convention, the Zak phase satisfies
 
 $$
-|\Delta\nu|
+\gamma=\pi\nu\pmod{2\pi}.
 $$
 
-個の零エネルギー境界モードが現れる。有限の topological SSH 鎖では左右の端に1個ずつ端状態が現れ、有限サイズでは両者の混成によりエネルギーが指数関数的にわずかに分裂する。
+![Winding-number construction](figures/winding_number_geometry.png)
 
-端状態の有無は、bulk の単位胞規約と実際の鎖の終端を整合させて判断する必要がある。
+*Source: Fig. 1.5 in J. K. Asbóth, L. Oroszlány, and A. Pályi, **A Short Course on Topological Insulators: Band-Structure Topology and Edge States in One and Two Dimensions**, Lecture Notes in Physics 919, Springer (2016), [arXiv:1509.02295](https://arxiv.org/abs/1509.02295).*
 
-## Python実装
+## Installation
 
-### Bloch Hamiltonian
+Clone the repository and install it in editable mode:
+
+```bash
+git clone https://github.com/fdtdengineer/ssh-topological-insulator.git
+cd ssh-topological-insulator
+python -m pip install -e .
+```
+
+For development and tests:
+
+```bash
+python -m pip install -e ".[dev]"
+```
+
+## Quick start
 
 ```python
 import numpy as np
-import matplotlib.pyplot as plt
 
-
-def H_SSH(k: float, v: float, w: float, m: float = 0.0) -> np.ndarray:
-    """Bloch Hamiltonian in the (A, B) sublattice basis."""
-    return np.array(
-        [
-            [m, v + w * np.exp(-1j * k)],
-            [v + w * np.exp(1j * k), -m],
-        ],
-        dtype=complex,
-    )
-```
-
-$m\sigma_z$ は staggered onsite term であり、 $m\neq0$ ではカイラル対称性を破る。この場合、Zak phase は一般に $0$ または $\pi$ に量子化されず、零エネルギー端状態もカイラル対称性によって保護されない。
-
-### バンド構造
-
-```python
-def band_data(v: float, w: float, m: float = 0.0, n_k: int = 401):
-    k_grid = np.linspace(-np.pi, np.pi, n_k, endpoint=False)
-    eigenvalues = []
-    eigenvectors = []
-
-    for k in k_grid:
-        values, vectors = np.linalg.eigh(H_SSH(k, v, w, m))
-        eigenvalues.append(values)
-        eigenvectors.append(vectors)
-
-    return k_grid, np.asarray(eigenvalues), np.asarray(eigenvectors)
-
-
-k_grid, eigenvalues, eigenvectors = band_data(v=0.8, w=1.0)
-
-for band in range(2):
-    plt.plot(k_grid, eigenvalues[:, band])
-plt.xlabel(r"$k$")
-plt.ylabel(r"$E$")
-plt.xticks(
-    [-np.pi, -np.pi / 2, 0, np.pi / 2, np.pi],
-    [r"$-\pi$", r"$-\pi/2$", r"$0$", r"$\pi/2$", r"$\pi$"],
+from ssh_model import (
+    bloch_hamiltonian,
+    open_chain_hamiltonian,
+    winding_number,
+    zak_phases,
 )
-plt.show()
+
+v, w = 0.8, 1.0
+
+Hk = bloch_hamiltonian(k=0.5, v=v, w=w)
+print(np.linalg.eigvalsh(Hk))
+
+print("winding number:", winding_number(v=v, w=w))
+print("Zak phases / pi:", zak_phases(v=v, w=w) / np.pi)
+
+H_open = open_chain_hamiltonian(n_cells=24, v=v, w=w)
+print(np.linalg.eigvalsh(H_open))
 ```
 
-### Gauge-invariant な Zak phase
+A runnable version is available in [`examples/basic_ssh.py`](examples/basic_ssh.py). The original derivation notebook is retained at [`notebooks/ssh_tutorial.ipynb`](notebooks/ssh_tutorial.ipynb).
 
-数値固有ベクトルの位相は各 $k$ で任意なので、Berry connection を単純に有限差分して足し合わせる方法は不安定である。代わりに
+## Numerical topology
 
-$$
-U_{n,\pm}
-=\frac{\langle u_\pm(k_n)|u_\pm(k_{n+1})\rangle}
-{|\langle u_\pm(k_n)|u_\pm(k_{n+1})\rangle|},
-\qquad k_N\equiv k_0
-$$
-
-を用いる。Wilson loop と Zak phase は
+Eigenvectors returned by numerical eigensolvers have arbitrary phases at each momentum. The Zak phase is therefore evaluated with a gauge-invariant discrete Wilson loop rather than by directly differentiating the eigenvector phase:
 
 $$
-W_\pm=\prod_{n=0}^{N-1}U_{n,\pm},
+U_n=
+\frac{\langle u(k_n)|u(k_{n+1})\rangle}
+{|\langle u(k_n)|u(k_{n+1})\rangle|},
 \qquad
-\gamma_\pm=\mathrm{Arg}\,W_\pm
+W=\prod_n U_n,
+\qquad
+\gamma=\arg W.
 $$
 
-である。
+At the transition point, where the bulk gap closes, the isolated-band topological invariant is undefined.
 
-```python
-def zak_phase_from_eigenvectors(
-    eigenvectors: np.ndarray,
-    atol: float = 1e-12,
-) -> np.ndarray:
-    """Return one gauge-invariant Zak phase per isolated band."""
-    n_k, _, n_band = eigenvectors.shape
-    phases = np.zeros(n_band)
+## Bulk-edge correspondence
 
-    for band in range(n_band):
-        wilson_loop = 1.0 + 0.0j
+For an open chain in the topological regime `|w| > |v|`, one boundary mode appears at each edge in the large-system limit. In a finite chain the two states hybridize weakly, producing an exponentially small energy splitting around zero.
 
-        for n in range(n_k):
-            u_n = eigenvectors[n, :, band]
-            u_next = eigenvectors[(n + 1) % n_k, :, band]
-            overlap = np.vdot(u_n, u_next)
+The test suite verifies this behavior numerically and also checks that a trivial chain does not contain corresponding near-zero modes.
 
-            if abs(overlap) < atol:
-                raise ValueError("Adjacent eigenvectors have nearly zero overlap.")
+## Project structure
 
-            wilson_loop *= overlap / abs(overlap)
-
-        phases[band] = np.angle(wilson_loop)
-
-    return phases
-
-
-for v, w in [(1.2, 1.0), (0.8, 1.0)]:
-    _, _, vectors = band_data(v=v, w=w)
-    print(v, w, zak_phase_from_eigenvectors(vectors) / np.pi)
+```text
+.
+├── src/ssh_model/        # canonical numerical implementation
+├── tests/                # analytic and physics-based regression tests
+├── examples/             # minimal runnable examples
+├── notebooks/            # tutorial / derivation notebook
+├── figures/              # cited figures used by this README
+└── .github/workflows/    # CI
 ```
 
-期待される結果は、trivial相で $0$ 、topological相で $\pm1$ 、すなわち $\pm\pi\equiv\pi\pmod{2\pi}$ である。
+The Python package under `src/ssh_model` is the canonical implementation. The notebook is retained as an explanatory derivation and visualization resource rather than as the source of library code.
 
-### 開放有限鎖
+## Tests
 
-```python
-def H_SSH_open(n_cells: int, v: float, w: float) -> np.ndarray:
-    """Open SSH chain in the basis (A1, B1, A2, B2, ...)."""
-    H = np.zeros((2 * n_cells, 2 * n_cells), dtype=float)
+Run
 
-    for cell in range(n_cells):
-        a, b = 2 * cell, 2 * cell + 1
-        H[a, b] = H[b, a] = v
-
-        if cell < n_cells - 1:
-            next_a = 2 * (cell + 1)
-            H[b, next_a] = H[next_a, b] = w
-
-    return H
-
-
-n_cells = 24
-for v, w in [(1.5, 1.0), (0.5, 1.0)]:
-    values, vectors = np.linalg.eigh(H_SSH_open(n_cells, v, w))
-    near_zero = np.count_nonzero(np.abs(values) < 1e-6)
-    print(v, w, near_zero)
-
-    edge_index = np.argmin(np.abs(values))
-    probability = np.abs(vectors[:, edge_index]) ** 2
-    plt.plot(probability, marker="o")
-    plt.xlabel("site index")
-    plt.ylabel(r"$|\psi|^2$")
-    plt.show()
+```bash
+pytest -q
 ```
 
-十分長い鎖では、topological相 $v<w$ に2個の near-zero mode が現れ、trivial相 $v>w$ には現れない。
+The tests check:
 
-## 自動検証
+- Hermiticity of the Bloch Hamiltonian
+- agreement with the analytic SSH dispersion
+- chiral anticommutation and symmetry breaking by a staggered onsite mass
+- winding numbers in trivial and topological phases
+- Wilson-loop Zak-phase quantization
+- finite-chain bulk-edge correspondence
 
-`scripts/verify_ssh.py` では、次の3段階を自動確認する。
+Linting is available with
 
-1. Hermiticity、解析固有値、カイラル反交換関係。
-2. trivial/topological両相のWilson-loop Zak phase。
-3. 開放有限鎖における端状態の有無。
+```bash
+ruff check src tests examples
+```
 
-README生成時にも、GitHubで未対応の数式マクロ、インライン数式区切り、既知の誤式が残っていないかを検査する。
+## Reference
 
-## 参考文献
+J. K. Asbóth, L. Oroszlány, and A. Pályi, *A Short Course on Topological Insulators: Band-Structure Topology and Edge States in One and Two Dimensions*, Lecture Notes in Physics **919**, Springer (2016). DOI: 10.1007/978-3-319-25607-8; arXiv:1509.02295.
 
-- J. K. Asbóth, L. Oroszlány, and A. Pályi, *A Short Course on Topological Insulators*, arXiv:1509.02295.
-- T. Fukui, Y. Hatsugai, and H. Suzuki, “Chern Numbers in Discretized Brillouin Zone,” *J. Phys. Soc. Jpn.* **74**, 1674 (2005).
+## License
+
+Released under the MIT License. See [`LICENSE`](LICENSE).

@@ -104,7 +104,7 @@ H_open = open_chain_hamiltonian(n_cells=24, v=v, w=w)
 print(np.linalg.eigvalsh(H_open))
 ```
 
-A runnable version is available in [`examples/basic_ssh.py`](examples/basic_ssh.py).
+A runnable version is available in [`examples/basic_ssh.py`](examples/basic_ssh.py). The original derivation notebook is retained at [`notebooks/ssh_tutorial.ipynb`](notebooks/ssh_tutorial.ipynb).
 
 ## Numerical topology
 
@@ -135,7 +135,7 @@ The test suite verifies this behavior numerically and also checks that a trivial
 ├── src/ssh_model/        # canonical numerical implementation
 ├── tests/                # analytic and physics-based regression tests
 ├── examples/             # minimal runnable examples
-├── sshmodel.ipynb        # original tutorial / derivation notebook
+├── notebooks/            # tutorial / derivation notebook
 ├── README_files/         # figures used by this README
 └── .github/workflows/    # CI
 ```

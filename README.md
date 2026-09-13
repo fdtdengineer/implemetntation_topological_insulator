@@ -2,7 +2,9 @@
 
 A compact, tested NumPy implementation of the one-dimensional Su-Schrieffer-Heeger (SSH) model. The repository demonstrates Bloch-band calculations, chiral symmetry, winding and Zak invariants, Wilson-loop evaluation, and finite-chain bulk-edge correspondence.
 
-![SSH chain](README_files/image.png)
+![Geometry of the SSH chain](figures/ssh_chain_geometry.png)
+
+*Source: Fig. 1.1 in J. K. Asbóth, L. Oroszlány, and A. Pályi, **A Short Course on Topological Insulators: Band-Structure Topology and Edge States in One and Two Dimensions**, Lecture Notes in Physics 919, Springer (2016), [arXiv:1509.02295](https://arxiv.org/abs/1509.02295).*
 
 ## Highlights
 
@@ -62,15 +64,17 @@ $$
 \gamma=\pi\nu\pmod{2\pi}.
 $$
 
-![Winding trajectory](README_files/image-4.png)
+![Winding-number construction](figures/winding_number_geometry.png)
+
+*Source: Fig. 1.5 in J. K. Asbóth, L. Oroszlány, and A. Pályi, **A Short Course on Topological Insulators: Band-Structure Topology and Edge States in One and Two Dimensions**, Lecture Notes in Physics 919, Springer (2016), [arXiv:1509.02295](https://arxiv.org/abs/1509.02295).*
 
 ## Installation
 
 Clone the repository and install it in editable mode:
 
 ```bash
-git clone https://github.com/fdtdengineer/implemetntation_topological_insulator.git
-cd implemetntation_topological_insulator
+git clone https://github.com/fdtdengineer/ssh-topological-insulator.git
+cd ssh-topological-insulator
 python -m pip install -e .
 ```
 
@@ -136,7 +140,7 @@ The test suite verifies this behavior numerically and also checks that a trivial
 ├── tests/                # analytic and physics-based regression tests
 ├── examples/             # minimal runnable examples
 ├── notebooks/            # tutorial / derivation notebook
-├── README_files/         # figures used by this README
+├── figures/              # cited figures used by this README
 └── .github/workflows/    # CI
 ```
 
